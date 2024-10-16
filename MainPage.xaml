@@ -4,14 +4,65 @@
              x:Class="GpsApplication.MainPage"
              xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              Title="Mapa">
-    <StackLayout>
-        <maps:Map MapType="Street" x:Name="MainMap"/>
-        <Grid ColumnDefinitions=".50*,.50*" RowDefinitions=".99*,.99*,.99*">
-            <Button Grid.Row="0" Grid.Column="0" Text="Zmień mape" Clicked="ChangeMap" Margin="2"/>
-            <Button Grid.Row="0" Grid.Column="1" Text="Zlokalizuj mnie" Clicked="LocateMe" Margin="2"/>
-            <Entry  Grid.Row="1" Grid.Column="0" Placeholder="Wpisz adres początkowy" x:Name="EntryAddress"/>
-            <Entry  Grid.Row="2" Grid.Column="0" Placeholder="Wpisz adres docelowy" x:Name="EndAddress"/>
-            <Button Grid.RowSpan="2" Grid.Row="1" Grid.Column="1" Text="Szukaj" Clicked="SearchAddress" Margin="2"/>
-        </Grid>
-    </StackLayout>
+    <AbsoluteLayout>
+        <maps:Map x:Name="MainMap"
+                  AbsoluteLayout.LayoutFlags="All"
+                  AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+                  MapType="Street" />
+        <!-- Przycisk Zmień Mapę -->
+        <ImageButton Source="layers.png"
+                     Clicked="ChangeMap"
+                     AbsoluteLayout.LayoutFlags="PositionProportional"
+                     AbsoluteLayout.LayoutBounds="0.01, 0.93, 70, 45"
+                     BackgroundColor="#CCFFFFFF"
+                     WidthRequest="45"/>
+        <!-- Przycisk Szukaj trasę -->
+        <ImageButton Source="route.png"
+                     Clicked="SearchPopup"
+                     AbsoluteLayout.LayoutFlags="PositionProportional"
+                     AbsoluteLayout.LayoutBounds="0.01, 0.84, 70, 45"
+                     BackgroundColor="#CCFFFFFF"
+                     WidthRequest="45"/>
+
+        <!-- Przycisk Zlokalizuj Mnie -->
+        <ImageButton Source="location.png"
+                     Clicked="LocateMe"
+                     AbsoluteLayout.LayoutFlags="PositionProportional"
+                     AbsoluteLayout.LayoutBounds="0.96, 0.02, 40, 45" 
+                     BackgroundColor="#CCFFFFFF"
+                     WidthRequest="45"/>
+
+
+
+        <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
+            <Grid RowDefinitions=".99*,.20*,.99*,.20*,.99*" ColumnDefinitions=".50*,.30*,.10*">
+                <Frame Grid.Row="0" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
+                <!-- Pole tekstowe: Wpisz adres początkowy -->
+                <Entry Grid.Row="0" Grid.Column="0"
+                       x:Name="EntryAddress"
+                       Placeholder="Adres początkowy"
+                       Margin="10,10,10,10"/>
+                <Frame Grid.Row="2" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
+                <!-- Pole tekstowe: Wpisz adres docelowy -->
+                <Entry Grid.Row="2" Grid.Column="0"
+                       x:Name="EndAddress"
+                       Placeholder="Adres docelowy" 
+                       Margin="10,10,10,10"/>
+                <!-- Unikaj opłat/autostrad -->
+                <Label Grid.Row="0" Grid.Column="1" Text="Unikaj opłat" HorizontalOptions="Center" VerticalOptions="Center"/> 
+                <CheckBox x:Name="PaidRoads" Grid.Row="0" Grid.Column="2"
+                          IsChecked="False"
+                          CheckedChanged="PaidRoadsCheckBox"/>
+                <Label Grid.Row="2" Grid.Column="1" Text="Unikaj autostrad" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <CheckBox x:Name="HighwayRoads" Grid.Row="2" Grid.Column="2"
+                          IsChecked="False"
+                          CheckedChanged="HighwayRoadsCheckBox"/>
+                <!-- Przycisk Szukaj -->
+                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                        Text="Szukaj"
+                        Clicked="SearchAddress"
+                        Margin="10" CornerRadius="20"/>
+            </Grid>
+        </StackLayout>
+    </AbsoluteLayout>
 </ContentPage>

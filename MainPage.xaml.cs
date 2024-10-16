@@ -12,6 +12,8 @@ namespace GpsApplication
 		private CancellationTokenSource _cancelTokenSource;
 		private bool _isCheckingLocation;
 		private HttpClient client;
+		private bool Tools = false;
+		private bool Highway = false;
 
 		public MainPage()
 		{
@@ -71,16 +73,17 @@ namespace GpsApplication
 				MainMap.MapType = MapType.Street;
 			}
 		}
-		public async void CalculateRoute(double StartLat, double StartLong, double EndLat, double EndLong)
+		public async void CalculateRoute(double StartLat, double StartLong, double EndLat, double EndLong, string avoidOptions)
 		{
 			MainMap.MapElements.Clear();
 			MainMap.Pins.Clear();
 			string StartPoint = $"{StartLat.ToString(System.Globalization.CultureInfo.InvariantCulture)},{StartLong.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 			string EndPoint = $"{EndLat.ToString(System.Globalization.CultureInfo.InvariantCulture)},{EndLong.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-			string url = $"https://maps.googleapis.com/maps/api/directions/json?origin={StartPoint}&destination={EndPoint}&key={"***REMOVED***"}";
+			string url = $"https://maps.googleapis.com/maps/api/directions/json?origin={StartPoint}&destination={EndPoint}{avoidOptions}&key={"***REMOVED***"}";
 
 			var response = await client.GetStringAsync(url);
 			var json = JObject.Parse(response);
+			SearchBar.IsVisible = false;
 
 			if (json["geocoded_waypoints"] != null && json["geocoded_waypoints"].Any()) 
 			{
@@ -117,6 +120,8 @@ namespace GpsApplication
 					MainMap.MapElements.Add(polyline);
 					MainMap.Pins.Add(pinstart);
 					MainMap.Pins.Add(pinEnd);
+					MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
+										new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
 				}
 			} 
 		}
@@ -174,7 +179,23 @@ namespace GpsApplication
 			double EndLatitude = coordsEnd.Value.latitude;
 			double Endlongtitude = coordsEnd.Value.longitude;
 
-			CalculateRoute(StartLatitude, StartLongtitude, EndLatitude, Endlongtitude);
+			string avoid = "";
+			if(Tools && Highway)
+			{
+				avoid = "&avoid=tolls|highways";
+			} else if(Tools)
+			{
+				avoid = "&avoid=tolls";
+			} else if(Highway)
+			{
+				avoid = "&avoid=highways";
+			}
+
+			CalculateRoute(StartLatitude, StartLongtitude, EndLatitude, Endlongtitude, avoid);
+			EndAddress.Text = "";
+			EntryAddress.Text = "";
+			HighwayRoads.IsChecked = false;
+			PaidRoads.IsChecked = false;
 		}
 		private async Task<(double latitude, double longitude)?> GetCoordinatesAsync(string address)
 		{
@@ -193,6 +214,19 @@ namespace GpsApplication
 			}
 
 			return null;
+		}
+		private void SearchPopup(object sender, EventArgs e)
+		{
+			SearchBar.IsVisible = true;
+		}
+		//Checkbox
+		private void PaidRoadsCheckBox(object sender, CheckedChangedEventArgs e)
+		{
+			Tools = e.Value; 
+		}
+		private void HighwayRoadsCheckBox(object sender, CheckedChangedEventArgs e)
+		{
+			Highway = e.Value;
 		}
 	}
 }
