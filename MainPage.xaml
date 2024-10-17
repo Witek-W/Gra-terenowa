@@ -22,7 +22,17 @@
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.01, 0.84, 70, 45"
                      BackgroundColor="#CCFFFFFF"
-                     WidthRequest="45"/>
+                     WidthRequest="45"
+                     x:Name="ShowSearch"/>
+        <!-- Przycisk Zamknij szukaj trasę -->
+        <ImageButton Source="route.png"
+                     Clicked="CloseSearchPopup"
+                     AbsoluteLayout.LayoutFlags="PositionProportional"
+                     AbsoluteLayout.LayoutBounds="0.01, 0.84, 70, 45"
+                     BackgroundColor="#CCFFFFFF"
+                     WidthRequest="45"
+                     IsVisible="False"
+                     x:Name="HideSearch"/>
 
         <!-- Przycisk Zlokalizuj Mnie -->
         <ImageButton Source="location.png"
@@ -30,10 +40,10 @@
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.96, 0.02, 40, 45" 
                      BackgroundColor="#CCFFFFFF"
-                     WidthRequest="45"/>
+                     WidthRequest="45" x:Name="LocateMeButton"/>
 
 
-
+          <!-- Okno wyszukiwania połączenia trasy -->
         <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
             <Grid RowDefinitions=".99*,.20*,.99*,.20*,.99*" ColumnDefinitions=".50*,.30*,.10*">
                 <Frame Grid.Row="0" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
@@ -60,8 +70,23 @@
                 <!-- Przycisk Szukaj -->
                 <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
                         Text="Szukaj"
-                        Clicked="SearchAddress"
+                        Clicked="SearchAddress" x:Name="SearchAddressButton"
                         Margin="10" CornerRadius="20"/>
+            </Grid>
+        </StackLayout>
+        <!-- Okno z wynikami połączenia -->
+        <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="AskPop" IsVisible="False"
+                     AbsoluteLayout.LayoutBounds="0,1,1,0.15"
+                     AbsoluteLayout.LayoutFlags="All">
+            <Grid RowDefinitions=".99*,.99*,.99*" ColumnDefinitions=".50*,.50*">
+                <Label Grid.Row="0" Grid.Column="0" Text="Odległość" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Row="0" Grid.Column="1" Text="Czas" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                
+                <Label Grid.Row="1" Grid.Column="0" Text="" x:Name="DistanceTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Row="1" Grid.Column="1" Text="" x:Name="TimeTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                
+                <Button Grid.Row="2" Grid.Column="0" Text="Rozpocznij" BackgroundColor="#0F950B" CornerRadius="20" Margin="5,2,5,2"/>
+                <Button Grid.Row="2" Grid.Column="1" Text="Anuluj" BackgroundColor="#C61919" CornerRadius="20" Margin="5,2,5,2" Clicked="CloseResultPopup"/>
             </Grid>
         </StackLayout>
     </AbsoluteLayout>

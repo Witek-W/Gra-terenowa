@@ -22,6 +22,8 @@ namespace GpsApplication
 		}
 		private void LocateMe(object sender, EventArgs e)
 		{
+			MainMap.MapElements.Clear();
+			MainMap.Pins.Clear();
 			GetCurrentLocation();
 		}
 		public async Task GetCurrentLocation()
@@ -83,7 +85,6 @@ namespace GpsApplication
 
 			var response = await client.GetStringAsync(url);
 			var json = JObject.Parse(response);
-			SearchBar.IsVisible = false;
 
 			if (json["geocoded_waypoints"] != null && json["geocoded_waypoints"].Any()) 
 			{
@@ -105,6 +106,12 @@ namespace GpsApplication
 							polyline.Geopath.Add(point);
 						}
 					}
+					var route = json["routes"][0]["legs"][0];
+					//Distance
+					var distanceText = route["distance"]["text"].ToString();
+					//Time
+					var timeText = route["duration"]["text"].ToString();
+
 					var pinstart = new Pin
 					{
 						Label = "Punkt startu",
@@ -122,8 +129,24 @@ namespace GpsApplication
 					MainMap.Pins.Add(pinEnd);
 					MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
 										new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
+					ResultPop(timeText, distanceText);
 				}
 			} 
+		}
+		public async void ResultPop(string time, string distance)
+		{
+			AskPop.IsVisible = true;
+			SearchBar.IsVisible = false;
+			time = time.Replace("hours", "godz");
+			TimeTrip.Text = time.Remove(time.Length-1);
+			DistanceTrip.Text = distance;
+		}
+		public void CloseResultPopup(object sender, EventArgs e)
+		{
+			AskPop.IsVisible = false;
+			LocateMeButton.IsVisible = true;
+			MainMap.MapElements.Clear();
+			MainMap.Pins.Clear();
 		}
 		public List<Location> DecodePolyline(string encodedPolyline)
 		{
@@ -169,11 +192,37 @@ namespace GpsApplication
 		}
 		public async void SearchAddress(object sender, EventArgs e)
 		{
+			SearchAddressButton.Text = "Szukanie...";
+			SearchAddressButton.IsEnabled = false;
 			var Startaddress = EntryAddress.Text;
 			var Endaddress = EndAddress.Text;
 			var coordsStart = await GetCoordinatesAsync(Startaddress);
 			var coordsEnd = await GetCoordinatesAsync(Endaddress);
-
+			if((coordsEnd.Value.latitude == 1000 && coordsStart.Value.latitude == 1000) || coordsStart == coordsEnd)
+			{
+				EntryAddress.Text = "";
+				EntryAddress.Placeholder = "Błędny adres";
+				EndAddress.Text = "";
+				EndAddress.Placeholder = "Błędny adres";
+				SearchAddressButton.Text = "Szukaj";
+				SearchAddressButton.IsEnabled = true;
+				return;
+			}
+			else if (coordsEnd.Value.latitude == 1000)
+			{
+				EndAddress.Text = "";
+				EndAddress.Placeholder = "Błędny adres";
+				SearchAddressButton.Text = "Szukaj";
+				SearchAddressButton.IsEnabled = true;
+				return;
+			} else if(coordsStart.Value.latitude == 1000)
+			{
+				EntryAddress.Text = "";
+				EntryAddress.Placeholder = "Błędny adres";
+				SearchAddressButton.Text = "Szukaj";
+				SearchAddressButton.IsEnabled = true;
+				return;
+			}
 			double StartLatitude = coordsStart.Value.latitude;
 			double StartLongtitude = coordsStart.Value.longitude;
 			double EndLatitude = coordsEnd.Value.latitude;
@@ -194,30 +243,56 @@ namespace GpsApplication
 			CalculateRoute(StartLatitude, StartLongtitude, EndLatitude, Endlongtitude, avoid);
 			EndAddress.Text = "";
 			EntryAddress.Text = "";
+			//Chowanie klawiatury "na siłe"
+			EndAddress.IsEnabled = false;
+			EntryAddress.IsEnabled = false;
+			EndAddress.IsEnabled = true;
+			EntryAddress.IsEnabled = false;
 			HighwayRoads.IsChecked = false;
 			PaidRoads.IsChecked = false;
+			SearchAddressButton.IsEnabled = true;
+			SearchAddressButton.Text = "Szukaj";
 		}
 		private async Task<(double latitude, double longitude)?> GetCoordinatesAsync(string address)
 		{
 			var encodedAddress = Uri.EscapeDataString(address);
 			var url = $"https://maps.googleapis.com/maps/api/geocode/json?address={encodedAddress}&key={"***REMOVED***"}";
-
-			var response = await client.GetStringAsync(url);
-			var json = JObject.Parse(response);
-
-			if (json["status"].ToString().Trim() == "OK")
+			try
 			{
-				var location = json["results"][0]["geometry"]["location"];
-				double latitude = (double)location["lat"];
-				double longitude = (double)location["lng"];
-				return (latitude, longitude);
+				var response = await client.GetStringAsync(url);
+				var json = JObject.Parse(response);
+				if (json["status"].ToString().Trim() == "OK")
+				{
+					var location = json["results"][0]["geometry"]["location"];
+					double latitude = (double)location["lat"];
+					double longitude = (double)location["lng"];
+					return (latitude, longitude);
+				}
+				else
+				{
+					return (1000, 1000);
+				}
+			} catch(Exception e)
+			{
+				Debug.WriteLine(e);
+				return (1000, 1000);
 			}
-
-			return null;
 		}
 		private void SearchPopup(object sender, EventArgs e)
 		{
+			EntryAddress.Placeholder = "Adres początkowy";
+			EndAddress.Placeholder = "Adres docelowy";
 			SearchBar.IsVisible = true;
+			ShowSearch.IsVisible = false;
+			HideSearch.IsVisible = true;
+			LocateMeButton.IsVisible = false;
+		}
+		private void CloseSearchPopup(object sender, EventArgs e)
+		{
+			SearchBar.IsVisible = false;
+			ShowSearch.IsVisible = true;
+			HideSearch.IsVisible = false;
+			LocateMeButton.IsVisible = true;
 		}
 		//Checkbox
 		private void PaidRoadsCheckBox(object sender, CheckedChangedEventArgs e)
