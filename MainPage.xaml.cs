@@ -2,7 +2,6 @@
 using Microsoft.Maui.Maps;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
-using GpsApplication.Models;
 using Newtonsoft.Json;
 using Microsoft.Maui.Storage;
 
@@ -20,12 +19,10 @@ namespace GpsApplication
 		private JObject temp;
 		private string StartLocalizationOfflineTemp;
 		private string EndLocalizationOfflineTemp;
-		private FileManager _file;
 		private bool isRouteFromSavedJson = false;
 
 		public MainPage()
 		{
-			_file = new FileManager();
 			client = new HttpClient();
 			InitializeComponent();
 		}
@@ -318,6 +315,7 @@ namespace GpsApplication
 		{
 			EntryAddress.Placeholder = "Adres początkowy";
 			EndAddress.Placeholder = "Adres docelowy";
+			Title = "Wyszukaj połączenie";
 			SearchBar.IsVisible = true;
 			ShowSearch.IsVisible = false;
 			HideSearch.IsVisible = true;
@@ -329,6 +327,7 @@ namespace GpsApplication
 			ShowSearch.IsVisible = true;
 			HideSearch.IsVisible = false;
 			LocateMeButton.IsVisible = true;
+			Title = "Mapa";
 		}
 		//Checkbox
 		private void PaidRoadsCheckBox(object sender, CheckedChangedEventArgs e)
@@ -343,9 +342,17 @@ namespace GpsApplication
 		private async void SaveRoute(object sender, EventArgs e)
 		{
 			string combine = StartLocalizationOfflineTemp + " do " + EndLocalizationOfflineTemp + ".json";
+			//Tworzenie pliku jeżeli nie istnieje
+			string fileRoutesPath = Path.Combine(FileSystem.AppDataDirectory, "Routes.txt");
+			if (!File.Exists(fileRoutesPath))
+			{
+				File.Create(fileRoutesPath).Close();
+			}
+
 			string jsonString = temp.ToString();
 			string filePath = Path.Combine(FileSystem.AppDataDirectory, combine);
 			await File.WriteAllTextAsync(filePath, jsonString);
+			await File.AppendAllTextAsync(fileRoutesPath, $"{StartLocalizationOfflineTemp}" + " do " + $"{EndLocalizationOfflineTemp}" + Environment.NewLine);
 		}
 		private async void LoadRoute(object sender, EventArgs e)
 		{
@@ -361,6 +368,26 @@ namespace GpsApplication
 				AddingRouteToMap(jsonLocalization, (double)jsonLocalization["startlat"], (double)jsonLocalization["startlong"], (double)jsonLocalization["endlat"], (double)jsonLocalization["endlong"]);
 			}
 
+		}
+		public void LoadLinesFromFile(object sender, EventArgs e)
+		{
+			StackLayoutContainer.IsVisible = true;
+			string filePath = Path.Combine(FileSystem.AppDataDirectory, "Routes.txt");
+			if (File.Exists(filePath))
+			{
+				List<string> lines = new List<string>(File.ReadAllLines(filePath));
+				foreach (var line in lines)
+				{
+					//Do zmiany, ładny napis skąd dokąd oraz opcja nawiguj i usuń
+					Label label = new Label
+					{
+						Text = line,
+						FontSize = 18,
+						Margin = new Thickness(5)
+					};
+					StackLayoutContainer.Children.Add(label);
+				}
+			}
 		}
 	}
 }

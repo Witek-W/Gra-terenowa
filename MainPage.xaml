@@ -5,6 +5,9 @@
              xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="Mapa">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="wifi.png" IsEnabled="True" x:Name="WifiIcon"/>
+    </ContentPage.ToolbarItems>
     <AbsoluteLayout>
         <maps:Map x:Name="MainMap"
                   AbsoluteLayout.LayoutFlags="All"
@@ -45,10 +48,10 @@
 
         <ImageButton Source="flag.png"
              AbsoluteLayout.LayoutFlags="PositionProportional"
-             AbsoluteLayout.LayoutBounds="0.56, 0.02, 40, 45" 
+             AbsoluteLayout.LayoutBounds="0.56, 0.5, 40, 45" 
              BackgroundColor="#CCFFFFFF"
              WidthRequest="45"
-                     Clicked="LoadRoute"/>
+                     Clicked="LoadLinesFromFile"/>
 
 
         <!-- Okno wyszukiwania połączenia trasy -->
@@ -89,18 +92,21 @@
             <Grid RowDefinitions=".99*,.99*,.99*" ColumnDefinitions=".50*,.50*">
                 <Label Grid.Row="0" Grid.Column="0" Text="Odległość" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Label Grid.Row="0" Grid.Column="1" Text="Czas" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-                
+
                 <Label Grid.Row="1" Grid.Column="0" Text="" x:Name="DistanceTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Label Grid.Row="1" Grid.Column="1" Text="" x:Name="TimeTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-                
+
                 <Button Grid.Row="2" Grid.Column="0" Text="Rozpocznij" BackgroundColor="#0F950B" FontSize="16"
                         FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult"/>
                 <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Zapisz" HorizontalOptions="Center" CornerRadius="20"
                         FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult"/>
                 <Button Grid.Row="2" Grid.Column="1" Text="Anuluj" BackgroundColor="#C61919" FontSize="16" x:Name="CancelButtonResult"
                         FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" Clicked="CloseResultPopup" HorizontalOptions="End" MinimumWidthRequest="120"/>
-                
+
             </Grid>
         </StackLayout>
+        <StackLayout WidthRequest="360" HeightRequest="300" BackgroundColor="White" x:Name="StackLayoutContainer" IsVisible="False">
+    <Label Text="test"/>
+</StackLayout>
     </AbsoluteLayout>
 </ContentPage>

@@ -61,7 +61,9 @@
 	  <None Remove="Resources\Images\layers.png" />
 	  <None Remove="Resources\Images\localizationdot.png" />
 	  <None Remove="Resources\Images\Location.png" />
+	  <None Remove="Resources\Images\nowifi.png" />
 	  <None Remove="Resources\Images\route.png" />
+	  <None Remove="Resources\Images\wifi.png" />
 	</ItemGroup>
 
 	<ItemGroup>
