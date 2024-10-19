@@ -1,8 +1,10 @@
 ﻿using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
 using System.Diagnostics;
-using System.Runtime.InteropServices.JavaScript;
 using Newtonsoft.Json.Linq;
+using GpsApplication.Models;
+using Newtonsoft.Json;
+using Microsoft.Maui.Storage;
 
 
 namespace GpsApplication
@@ -14,9 +16,16 @@ namespace GpsApplication
 		private HttpClient client;
 		private bool Tools = false;
 		private bool Highway = false;
+		//Saving file for offline
+		private JObject temp;
+		private string StartLocalizationOfflineTemp;
+		private string EndLocalizationOfflineTemp;
+		private FileManager _file;
+		private bool isRouteFromSavedJson = false;
 
 		public MainPage()
 		{
+			_file = new FileManager();
 			client = new HttpClient();
 			InitializeComponent();
 		}
@@ -85,8 +94,17 @@ namespace GpsApplication
 
 			var response = await client.GetStringAsync(url);
 			var json = JObject.Parse(response);
+			temp = json;
+			temp["startlat"] = StartLat;
+			temp["startlong"] = StartLong;
+			temp["endlat"] = EndLat;
+			temp["endlong"] = EndLong;
 
-			if (json["geocoded_waypoints"] != null && json["geocoded_waypoints"].Any()) 
+			AddingRouteToMap(json, StartLat, StartLong, EndLat, EndLong);
+		}
+		public void AddingRouteToMap(JObject json, double StartLat, double StartLong, double EndLat, double EndLong)
+		{
+			if (json["geocoded_waypoints"] != null && json["geocoded_waypoints"].Any())
 			{
 				var geocoderStatus = json["geocoded_waypoints"][0]["geocoder_status"].ToString();
 				if (geocoderStatus == "OK")
@@ -94,14 +112,14 @@ namespace GpsApplication
 					var polyline = new Polyline
 					{
 						StrokeColor = Colors.Purple,
-						StrokeWidth = 5
+						StrokeWidth = 12
 					};
 
-					foreach(var step in json["routes"][0]["legs"][0]["steps"])
+					foreach (var step in json["routes"][0]["legs"][0]["steps"])
 					{
 						var encodedPolyline = step["polyline"]["points"].ToString();
 						var points = DecodePolyline(encodedPolyline);
-						foreach(var point in points)
+						foreach (var point in points)
 						{
 							polyline.Geopath.Add(point);
 						}
@@ -131,11 +149,20 @@ namespace GpsApplication
 										new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
 					ResultPop(timeText, distanceText);
 				}
-			} 
+			}
 		}
 		public async void ResultPop(string time, string distance)
 		{
 			AskPop.IsVisible = true;
+			if(isRouteFromSavedJson == true)
+			{
+				SaveButtonResult.IsVisible = false;
+				AcceptButtonResult.MinimumWidthRequest = 0;
+				AcceptButtonResult.HorizontalOptions = LayoutOptions.FillAndExpand;
+				CancelButtonResult.MinimumWidthRequest = 0;
+				CancelButtonResult.HorizontalOptions = LayoutOptions.FillAndExpand;
+				isRouteFromSavedJson = false;
+			}
 			SearchBar.IsVisible = false;
 			time = time.Replace("hours", "godz");
 			TimeTrip.Text = time.Remove(time.Length-1);
@@ -145,6 +172,13 @@ namespace GpsApplication
 		{
 			AskPop.IsVisible = false;
 			LocateMeButton.IsVisible = true;
+
+			SaveButtonResult.IsVisible = true;
+			AcceptButtonResult.MinimumWidthRequest = 120;
+			AcceptButtonResult.HorizontalOptions = LayoutOptions.Start;
+			CancelButtonResult.MinimumWidthRequest = 120;
+			CancelButtonResult.HorizontalOptions = LayoutOptions.End;
+
 			MainMap.MapElements.Clear();
 			MainMap.Pins.Clear();
 		}
@@ -195,7 +229,9 @@ namespace GpsApplication
 			SearchAddressButton.Text = "Szukanie...";
 			SearchAddressButton.IsEnabled = false;
 			var Startaddress = EntryAddress.Text;
+			StartLocalizationOfflineTemp = Startaddress;
 			var Endaddress = EndAddress.Text;
+			EndLocalizationOfflineTemp = Endaddress;
 			var coordsStart = await GetCoordinatesAsync(Startaddress);
 			var coordsEnd = await GetCoordinatesAsync(Endaddress);
 			if((coordsEnd.Value.latitude == 1000 && coordsStart.Value.latitude == 1000) || coordsStart == coordsEnd)
@@ -247,7 +283,7 @@ namespace GpsApplication
 			EndAddress.IsEnabled = false;
 			EntryAddress.IsEnabled = false;
 			EndAddress.IsEnabled = true;
-			EntryAddress.IsEnabled = false;
+			EntryAddress.IsEnabled = true;
 			HighwayRoads.IsChecked = false;
 			PaidRoads.IsChecked = false;
 			SearchAddressButton.IsEnabled = true;
@@ -302,6 +338,29 @@ namespace GpsApplication
 		private void HighwayRoadsCheckBox(object sender, CheckedChangedEventArgs e)
 		{
 			Highway = e.Value;
+		}
+		//Saving json
+		private async void SaveRoute(object sender, EventArgs e)
+		{
+			string combine = StartLocalizationOfflineTemp + " do " + EndLocalizationOfflineTemp + ".json";
+			string jsonString = temp.ToString();
+			string filePath = Path.Combine(FileSystem.AppDataDirectory, combine);
+			await File.WriteAllTextAsync(filePath, jsonString);
+		}
+		private async void LoadRoute(object sender, EventArgs e)
+		{
+			//Do zmiany aby pobierało nazwę z listy zapisanych plików, i po wyborze danej nazwy tutaj przesyłało
+			string fileName = "palczowice do Wadowice.json";
+			string filePath = Path.Combine(FileSystem.AppDataDirectory, fileName);
+			var json = await File.ReadAllTextAsync(filePath);
+
+			if (json != null)
+			{
+				var jsonLocalization = JObject.Parse(json);
+				isRouteFromSavedJson = true;
+				AddingRouteToMap(jsonLocalization, (double)jsonLocalization["startlat"], (double)jsonLocalization["startlong"], (double)jsonLocalization["endlat"], (double)jsonLocalization["endlong"]);
+			}
+
 		}
 	}
 }

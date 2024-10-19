@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿
+using Microsoft.Extensions.Logging;
 
 namespace GpsApplication
 {
@@ -15,6 +16,7 @@ namespace GpsApplication
 					fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 				})
 				.UseMauiMaps();
+
 
 #if DEBUG
 			builder.Logging.AddDebug();
