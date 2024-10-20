@@ -55,20 +55,20 @@
 
 
         <!-- Okno wyszukiwania połączenia trasy -->
-        <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
-            <Grid RowDefinitions=".99*,.20*,.99*,.20*,.99*" ColumnDefinitions=".50*,.30*,.10*">
+        <StackLayout WidthRequest="360" HeightRequest="235" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
+            <Grid RowDefinitions=".99*,.20*,.99*,.20*,.99*,.20*,.99*" ColumnDefinitions=".50*,.30*,.10*">
                 <Frame Grid.Row="0" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
                 <!-- Pole tekstowe: Wpisz adres początkowy -->
                 <Entry Grid.Row="0" Grid.Column="0"
                        x:Name="EntryAddress"
                        Placeholder="Adres początkowy"
-                       Margin="10,10,10,10"/>
+                       Margin="10,10,10,10" TextChanged="RouteChanged"/>
                 <Frame Grid.Row="2" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
                 <!-- Pole tekstowe: Wpisz adres docelowy -->
                 <Entry Grid.Row="2" Grid.Column="0"
                        x:Name="EndAddress"
                        Placeholder="Adres docelowy" 
-                       Margin="10,10,10,10"/>
+                       Margin="10,10,10,10" TextChanged="RouteChanged"/>
                 <!-- Unikaj opłat/autostrad -->
                 <Label Grid.Row="0" Grid.Column="1" Text="Unikaj opłat" HorizontalOptions="Center" VerticalOptions="Center"/> 
                 <CheckBox x:Name="PaidRoads" Grid.Row="0" Grid.Column="2"
@@ -78,11 +78,22 @@
                 <CheckBox x:Name="HighwayRoads" Grid.Row="2" Grid.Column="2"
                           IsChecked="False"
                           CheckedChanged="HighwayRoadsCheckBox"/>
+                <!-- Slider -->
+                <Picker Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Title="Wybierz środek transportu" 
+                        HorizontalOptions="Center" MaximumWidthRequest="250" SelectedIndex="0" x:Name="PickerValues">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Samochód</x:String>
+                            <x:String>Rower</x:String>
+                            <x:String>Na nogach</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
                 <!-- Przycisk Szukaj -->
-                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3"
                         Text="Szukaj"
                         Clicked="SearchAddress" x:Name="SearchAddressButton"
-                        Margin="10" CornerRadius="20"/>
+                        Margin="10" CornerRadius="20" IsEnabled="False"/>
             </Grid>
         </StackLayout>
         <!-- Okno z wynikami połączenia -->
@@ -97,7 +108,7 @@
                 <Label Grid.Row="1" Grid.Column="1" Text="" x:Name="TimeTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
 
                 <Button Grid.Row="2" Grid.Column="0" Text="Rozpocznij" BackgroundColor="#0F950B" FontSize="16"
-                        FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult"/>
+                        FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult" Clicked="AcceptButtonClicked"/>
                 <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Zapisz" HorizontalOptions="Center" CornerRadius="20"
                         FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult"/>
                 <Button Grid.Row="2" Grid.Column="1" Text="Anuluj" BackgroundColor="#C61919" FontSize="16" x:Name="CancelButtonResult"

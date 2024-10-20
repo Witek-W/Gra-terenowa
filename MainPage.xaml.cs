@@ -13,41 +13,61 @@ namespace GpsApplication
 		private CancellationTokenSource _cancelTokenSource;
 		private bool _isCheckingLocation;
 		private HttpClient client;
+		//Warunki do directions api
 		private bool Tools = false;
 		private bool Highway = false;
+		private int TransportTypeIndex = 0;
 		//Saving file for offline
 		private JObject temp;
 		private string StartLocalizationOfflineTemp;
 		private string EndLocalizationOfflineTemp;
 		private bool isRouteFromSavedJson = false;
+		//Sprawdznie koncowej trasy
+		private double nearbyDistance = 10;
+		private double nearbyEndLat = 0;
+		private double nearbyEndLong = 0;
 
 		public MainPage()
 		{
 			client = new HttpClient();
 			InitializeComponent();
 		}
-		private void LocateMe(object sender, EventArgs e)
+		private void RouteChanged(object sender, TextChangedEventArgs e)
+		{
+			if(!string.IsNullOrEmpty(EntryAddress.Text) && !string.IsNullOrEmpty(EndAddress.Text))
+			{
+				SearchAddressButton.IsEnabled = true;
+			} else
+			{
+				SearchAddressButton.IsEnabled = false;
+			}
+		}
+		private async void LocateMe(object sender, EventArgs e)
 		{
 			MainMap.MapElements.Clear();
 			MainMap.Pins.Clear();
-			GetCurrentLocation();
+			await GetCurrentLocation();
 		}
 		public async Task GetCurrentLocation()
 		{
 			try
 			{
 				_isCheckingLocation = true;
-				GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(0.1));
+				GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(1));
 				_cancelTokenSource = new CancellationTokenSource();
 				Location location = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
 				if(location != null)
 				{
-					Debug.WriteLine($"Latitude: {location.Latitude}, Longitude: {location.Longitude}, Altitude: {location.Altitude}");
 					AddPinAndMoveMap(location.Latitude, location.Longitude);
 				}
-			}catch(Exception ex)
+				else
+				{
+					Debug.WriteLine("Lokalizacja jest null.");
+				}
+			}
+			catch(Exception ex)
 			{
-				Debug.WriteLine(ex);
+				Debug.WriteLine($"Błąd podczas uzyskiwania lokalizacji: {ex.Message}");
 			} finally
 			{
 				_isCheckingLocation = false;
@@ -58,13 +78,12 @@ namespace GpsApplication
 			var pin = new Pin
 			{
 				Label = "Moja lokalizacja",
-				Address = "Me",
 				Type = PinType.Place,
 				Location = new Location(latitude, longitude)
 			};
 			MainMap.Pins.Add(pin);
 			MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
-				new Location(latitude, longitude), Distance.FromKilometers(0.5)));
+				new Location(latitude, longitude), Distance.FromKilometers(0.1)));
 		}
 		public void CancelRequest()
 		{
@@ -81,13 +100,13 @@ namespace GpsApplication
 				MainMap.MapType = MapType.Street;
 			}
 		}
-		public async void CalculateRoute(double StartLat, double StartLong, double EndLat, double EndLong, string avoidOptions)
+		public async void CalculateRoute(double StartLat, double StartLong, double EndLat, double EndLong, string avoidOptions, string transportMethod)
 		{
-			MainMap.MapElements.Clear();
-			MainMap.Pins.Clear();
+			//MainMap.MapElements.Clear();
+			//MainMap.Pins.Clear();
 			string StartPoint = $"{StartLat.ToString(System.Globalization.CultureInfo.InvariantCulture)},{StartLong.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 			string EndPoint = $"{EndLat.ToString(System.Globalization.CultureInfo.InvariantCulture)},{EndLong.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-			string url = $"https://maps.googleapis.com/maps/api/directions/json?origin={StartPoint}&destination={EndPoint}{avoidOptions}&key={"***REMOVED***"}";
+			string url = $"https://maps.googleapis.com/maps/api/directions/json?origin={StartPoint}&destination={EndPoint}{avoidOptions}{transportMethod}&key={"***REMOVED***"}";
 
 			var response = await client.GetStringAsync(url);
 			var json = JObject.Parse(response);
@@ -144,6 +163,8 @@ namespace GpsApplication
 					MainMap.Pins.Add(pinEnd);
 					MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
 										new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
+					nearbyEndLat = EndLat;
+					nearbyEndLong = EndLong;
 					ResultPop(timeText, distanceText);
 				}
 			}
@@ -169,15 +190,64 @@ namespace GpsApplication
 		{
 			AskPop.IsVisible = false;
 			LocateMeButton.IsVisible = true;
-
+			Title = "Mapa";
 			SaveButtonResult.IsVisible = true;
 			AcceptButtonResult.MinimumWidthRequest = 120;
 			AcceptButtonResult.HorizontalOptions = LayoutOptions.Start;
 			CancelButtonResult.MinimumWidthRequest = 120;
 			CancelButtonResult.HorizontalOptions = LayoutOptions.End;
-
+			nearbyEndLat = 0;
+			nearbyEndLong = 0;
 			MainMap.MapElements.Clear();
 			MainMap.Pins.Clear();
+		}
+		public async void AcceptButtonClicked(object sender, EventArgs e)
+		{
+			var location = await Geolocation.GetLastKnownLocationAsync();
+			do
+			{
+				//Jeżeli nie ma nawigacji z bieżącej lokalizacji, to zablokowac przycisk "Rozpocznij"
+				//Jedynie jak jest od lokalizacji uzytkownika to wtedy rozpocznij
+
+				//await GetCurrentLocation();
+				//CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong, "","");
+				//await Task.Delay(5000);
+			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
+		}
+		private bool CheckIfRouteEnded(Location location,double lat, double longg)
+		{
+			if (location != null)
+			{
+				double userLatitude = location.Latitude;
+				double userLongitude = location.Longitude;
+				double distance = CalculateDistance(userLatitude, userLongitude, lat, longg);
+				if (distance <= nearbyDistance)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return false;
+		}
+		//Obliczanie odległości od punktu docelowego
+		public double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+		{
+			var R = 6371e3; 
+			var φ1 = lat1 * Math.PI / 180; 
+			var φ2 = lat2 * Math.PI / 180;
+			var Δφ = (lat2 - lat1) * Math.PI / 180;
+			var Δλ = (lon2 - lon1) * Math.PI / 180;
+
+			var a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
+					Math.Cos(φ1) * Math.Cos(φ2) *
+					Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
+			var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+			var distance = R * c;
+			return distance;
 		}
 		public List<Location> DecodePolyline(string encodedPolyline)
 		{
@@ -225,6 +295,7 @@ namespace GpsApplication
 		{
 			SearchAddressButton.Text = "Szukanie...";
 			SearchAddressButton.IsEnabled = false;
+			TransportTypeIndex = PickerValues.SelectedIndex;
 			var Startaddress = EntryAddress.Text;
 			StartLocalizationOfflineTemp = Startaddress;
 			var Endaddress = EndAddress.Text;
@@ -262,6 +333,7 @@ namespace GpsApplication
 			double Endlongtitude = coordsEnd.Value.longitude;
 
 			string avoid = "";
+			string transportType = "";
 			if(Tools && Highway)
 			{
 				avoid = "&avoid=tolls|highways";
@@ -272,8 +344,18 @@ namespace GpsApplication
 			{
 				avoid = "&avoid=highways";
 			}
+			if(TransportTypeIndex == 0)
+			{
 
-			CalculateRoute(StartLatitude, StartLongtitude, EndLatitude, Endlongtitude, avoid);
+			} else if(TransportTypeIndex == 1)
+			{
+				transportType = "&mode=bicycling";
+			} else if(TransportTypeIndex == 2)
+			{
+				transportType = "&mode=walking";
+			}
+
+			CalculateRoute(StartLatitude, StartLongtitude, EndLatitude, Endlongtitude, avoid, transportType);
 			EndAddress.Text = "";
 			EntryAddress.Text = "";
 			//Chowanie klawiatury "na siłe"
@@ -313,6 +395,7 @@ namespace GpsApplication
 		}
 		private void SearchPopup(object sender, EventArgs e)
 		{
+			PickerValues.SelectedIndex = 0;
 			EntryAddress.Placeholder = "Adres początkowy";
 			EndAddress.Placeholder = "Adres docelowy";
 			Title = "Wyszukaj połączenie";
