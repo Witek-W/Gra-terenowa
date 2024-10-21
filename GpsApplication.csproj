@@ -57,11 +57,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\bin.png" />
+	  <None Remove="Resources\Images\bookmarkoutline.png" />
 	  <None Remove="Resources\Images\flag.png" />
 	  <None Remove="Resources\Images\layers.png" />
 	  <None Remove="Resources\Images\localizationdot.png" />
 	  <None Remove="Resources\Images\Location.png" />
 	  <None Remove="Resources\Images\nowifi.png" />
+	  <None Remove="Resources\Images\playbutton.png" />
 	  <None Remove="Resources\Images\route.png" />
 	  <None Remove="Resources\Images\wifi.png" />
 	</ItemGroup>
@@ -72,10 +75,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="8.0.60" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Models\" />
 	</ItemGroup>
 
 </Project>

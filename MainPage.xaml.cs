@@ -4,6 +4,10 @@ using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Microsoft.Maui.Storage;
+using System.Collections.ObjectModel;
+using GpsApplication.Models;
+using System.Windows.Input;
+using System.Text;
 
 
 namespace GpsApplication
@@ -23,14 +27,24 @@ namespace GpsApplication
 		private string EndLocalizationOfflineTemp;
 		private bool isRouteFromSavedJson = false;
 		//Sprawdznie koncowej trasy
-		private double nearbyDistance = 10;
+		private double nearbyDistance = 18;
 		private double nearbyEndLat = 0;
 		private double nearbyEndLong = 0;
+		//Uruchamianie trasy
+		private bool isStartingAtCurrentLocalization = false;
+
+		public ObservableCollection<Routes> Route { get; set; }
 
 		public MainPage()
 		{
+			Route = new ObservableCollection<Routes>();
 			client = new HttpClient();
 			InitializeComponent();
+			CheckInternet();
+		}
+		private void ResetIcon(object sender, EventArgs e)
+		{
+			CheckInternet();
 		}
 		private void RouteChanged(object sender, TextChangedEventArgs e)
 		{
@@ -78,8 +92,8 @@ namespace GpsApplication
 			var pin = new Pin
 			{
 				Label = "Moja lokalizacja",
-				Type = PinType.Place,
-				Location = new Location(latitude, longitude)
+				Type = PinType.Generic,
+				Location = new Location(latitude, longitude),
 			};
 			MainMap.Pins.Add(pin);
 			MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
@@ -192,27 +206,73 @@ namespace GpsApplication
 			LocateMeButton.IsVisible = true;
 			Title = "Mapa";
 			SaveButtonResult.IsVisible = true;
+			ShowSearch.IsVisible = true;
+			HideSearch.IsVisible = false;
 			AcceptButtonResult.MinimumWidthRequest = 120;
 			AcceptButtonResult.HorizontalOptions = LayoutOptions.Start;
 			CancelButtonResult.MinimumWidthRequest = 120;
 			CancelButtonResult.HorizontalOptions = LayoutOptions.End;
 			nearbyEndLat = 0;
 			nearbyEndLong = 0;
+			//Zapisane trasy
+			FlagClosing.IsVisible = false;
+			FlagShowing.IsVisible = true;
+			StackLayoutContainer.IsVisible = false;
+
 			MainMap.MapElements.Clear();
 			MainMap.Pins.Clear();
 		}
 		public async void AcceptButtonClicked(object sender, EventArgs e)
 		{
+			Title = "W trakcie nawigacji";
+			//Wyłączanie wszystkich guzików
+			ShowSearch.IsVisible = false;
+			HideSearch.IsVisible = false;
+			LocateMeButton.IsVisible = false;
+			FlagShowing.IsVisible = false;
+			FlagClosing.IsVisible = false;
+
+			AskPop.IsVisible = false;
 			var location = await Geolocation.GetLastKnownLocationAsync();
+			int delay = 1000;
 			do
 			{
 				//Jeżeli nie ma nawigacji z bieżącej lokalizacji, to zablokowac przycisk "Rozpocznij"
 				//Jedynie jak jest od lokalizacji uzytkownika to wtedy rozpocznij
+				RemoveGenericPins();
+				location = await Geolocation.GetLastKnownLocationAsync();
+				var pin = new Pin
+				{
+					Label = "Moja lokalizacja",
+					Type = PinType.Generic,
+					Location = new Location(location.Latitude, location.Longitude),
+				};
+				MainMap.Pins.Add(pin);
+				//CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong, "","");
+				await Task.Delay(delay);
+				delay = 5000;
+
+
 
 				//await GetCurrentLocation();
-				//CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong, "","");
-				//await Task.Delay(5000);
 			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
+			Debug.WriteLine("Dotarłes na miejsce");
+			Title = "Mapa";
+			RouteEnded.IsVisible = true;
+			MainMap.MapElements.Clear();
+			var pinsToRemove = MainMap.Pins.Where(pin => pin.Type == PinType.Place).ToList();
+			foreach (var pin in pinsToRemove)
+			{
+				MainMap.Pins.Remove(pin);
+			}
+		}
+		private void RemoveGenericPins()
+		{
+			var pinsToRemove = MainMap.Pins.Where(pin => pin.Type == PinType.Generic).ToList();
+			foreach (var pin in pinsToRemove)
+			{
+				MainMap.Pins.Remove(pin);
+			}
 		}
 		private bool CheckIfRouteEnded(Location location,double lat, double longg)
 		{
@@ -294,13 +354,25 @@ namespace GpsApplication
 		public async void SearchAddress(object sender, EventArgs e)
 		{
 			SearchAddressButton.Text = "Szukanie...";
+
 			SearchAddressButton.IsEnabled = false;
 			TransportTypeIndex = PickerValues.SelectedIndex;
-			var Startaddress = EntryAddress.Text;
+
+			var Startaddress = EntryAddress.Text.Trim();
 			StartLocalizationOfflineTemp = Startaddress;
-			var Endaddress = EndAddress.Text;
+
+			var Endaddress = EndAddress.Text.Trim();
 			EndLocalizationOfflineTemp = Endaddress;
-			var coordsStart = await GetCoordinatesAsync(Startaddress);
+			(double latitude, double longitude)? coordsStart;
+			if (Startaddress == "Moja lokalizacja")
+			{
+				var localization = await Geolocation.GetLastKnownLocationAsync();
+				coordsStart = (localization.Latitude, localization.Longitude);
+			} else
+			{
+
+				coordsStart = await GetCoordinatesAsync(Startaddress);
+			}
 			var coordsEnd = await GetCoordinatesAsync(Endaddress);
 			if((coordsEnd.Value.latitude == 1000 && coordsStart.Value.latitude == 1000) || coordsStart == coordsEnd)
 			{
@@ -395,9 +467,14 @@ namespace GpsApplication
 		}
 		private void SearchPopup(object sender, EventArgs e)
 		{
+			//Zapisane trasy
+			FlagClosing.IsVisible = false;
+			FlagShowing.IsVisible = false;
+
 			PickerValues.SelectedIndex = 0;
 			EntryAddress.Placeholder = "Adres początkowy";
 			EndAddress.Placeholder = "Adres docelowy";
+			EntryAddress.Text = "Moja lokalizacja";
 			Title = "Wyszukaj połączenie";
 			SearchBar.IsVisible = true;
 			ShowSearch.IsVisible = false;
@@ -406,11 +483,16 @@ namespace GpsApplication
 		}
 		private void CloseSearchPopup(object sender, EventArgs e)
 		{
+			//Zapisane trasy
+			FlagClosing.IsVisible = false;
+			FlagShowing.IsVisible = true;
+
 			SearchBar.IsVisible = false;
 			ShowSearch.IsVisible = true;
 			HideSearch.IsVisible = false;
 			LocateMeButton.IsVisible = true;
 			Title = "Mapa";
+			RouteEnded.IsVisible = false;
 		}
 		//Checkbox
 		private void PaidRoadsCheckBox(object sender, CheckedChangedEventArgs e)
@@ -437,10 +519,10 @@ namespace GpsApplication
 			await File.WriteAllTextAsync(filePath, jsonString);
 			await File.AppendAllTextAsync(fileRoutesPath, $"{StartLocalizationOfflineTemp}" + " do " + $"{EndLocalizationOfflineTemp}" + Environment.NewLine);
 		}
-		private async void LoadRoute(object sender, EventArgs e)
+		private async void LoadRoute(string start, string end)
 		{
-			//Do zmiany aby pobierało nazwę z listy zapisanych plików, i po wyborze danej nazwy tutaj przesyłało
-			string fileName = "palczowice do Wadowice.json";
+			Title = "Wczytana trasa";
+			string fileName = $"{start}" + " do " + $"{end}" + ".json";
 			string filePath = Path.Combine(FileSystem.AppDataDirectory, fileName);
 			var json = await File.ReadAllTextAsync(filePath);
 
@@ -450,26 +532,82 @@ namespace GpsApplication
 				isRouteFromSavedJson = true;
 				AddingRouteToMap(jsonLocalization, (double)jsonLocalization["startlat"], (double)jsonLocalization["startlong"], (double)jsonLocalization["endlat"], (double)jsonLocalization["endlong"]);
 			}
-
 		}
 		public void LoadLinesFromFile(object sender, EventArgs e)
 		{
 			StackLayoutContainer.IsVisible = true;
+			ShowSearch.IsVisible = false;
+			HideSearch.IsVisible = false;
+			FlagShowing.IsVisible = false;
+			FlagClosing.IsVisible = true;
+			Title = "Zapisane trasy";
 			string filePath = Path.Combine(FileSystem.AppDataDirectory, "Routes.txt");
 			if (File.Exists(filePath))
 			{
-				List<string> lines = new List<string>(File.ReadAllLines(filePath));
+				var lines = File.ReadAllLines(filePath);
 				foreach (var line in lines)
 				{
-					//Do zmiany, ładny napis skąd dokąd oraz opcja nawiguj i usuń
-					Label label = new Label
+					var cities = line.Split(new string[] { " do " }, StringSplitOptions.None);
+					Route.Add(new Routes
 					{
-						Text = line,
-						FontSize = 18,
-						Margin = new Thickness(5)
-					};
-					StackLayoutContainer.Children.Add(label);
+						CityStart = cities[0].Trim(),
+						CityEnd = cities[1].Trim(),
+					});
 				}
+				CollectionRoutes.ItemsSource = Route;
+			}
+		}
+		public void NavigateCommand(object sender, EventArgs e)
+		{
+			ImageButton button = (ImageButton)sender;
+			var route = button.CommandParameter as Models.Routes;
+			//Logika nawigacji
+			StackLayoutContainer.IsVisible = false;
+			FlagShowing.IsVisible = false;
+			FlagClosing.IsVisible = false;
+			LoadRoute(route.CityStart, route.CityEnd);
+		}
+		public void DeleteRouteCommand(object sender, EventArgs e)
+		{
+			ImageButton button = (ImageButton)sender;
+			var route = button.CommandParameter as Models.Routes;
+			//Usuwanie json
+			string jsonpath = Path.Combine(FileSystem.AppDataDirectory, $"{route.CityStart}" + " do " + $"{route.CityEnd}" + ".json");
+			if(File.Exists(jsonpath))
+			{
+				File.Delete(jsonpath);
+			}
+			//Usuwanie linijki z routes.txt
+			string filepath = Path.Combine(FileSystem.AppDataDirectory, "Routes.txt");
+			if(File.Exists(filepath))
+			{
+				string lineToRemove = $"{route.CityStart}" + " do " + $"{route.CityEnd}";
+				var lines = File.ReadAllLines(filepath).ToList();
+				lines.RemoveAll(line => line.Contains(lineToRemove));
+				File.WriteAllLines(filepath, lines);
+				CloseLoadedLines(null,null);
+				LoadLinesFromFile(null, null);
+			}
+		}
+		public void CloseLoadedLines(object sender, EventArgs e)
+		{
+			StackLayoutContainer.IsVisible = false;
+			FlagShowing.IsVisible = true;
+			FlagClosing.IsVisible = false;
+			ShowSearch.IsVisible = true;
+			HideSearch.IsVisible = false;
+			Title = "Mapa";
+			Route.Clear();
+		}
+		public async void CheckInternet()
+		{
+			var current = Connectivity.NetworkAccess;
+			if(current == NetworkAccess.Internet)
+			{
+				WifiIcon.IconImageSource = "wifi.png";
+			} else
+			{
+				WifiIcon.IconImageSource = "nowifi.png";
 			}
 		}
 	}

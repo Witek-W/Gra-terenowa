@@ -6,7 +6,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="Mapa">
     <ContentPage.ToolbarItems>
-        <ToolbarItem IconImageSource="wifi.png" IsEnabled="True" x:Name="WifiIcon"/>
+        <ToolbarItem IconImageSource="wifi.png" IsEnabled="True" x:Name="WifiIcon" Clicked="ResetIcon"/>
     </ContentPage.ToolbarItems>
     <AbsoluteLayout>
         <maps:Map x:Name="MainMap"
@@ -14,44 +14,37 @@
                   AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
                   MapType="Street" />
         <!-- Przycisk Zmień Mapę -->
-        <ImageButton Source="layers.png"
-                     Clicked="ChangeMap"
+        <ImageButton Source="layers.png" Clicked="ChangeMap"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.01, 0.93, 70, 45"
-                     BackgroundColor="#CCFFFFFF"
-                     WidthRequest="45"/>
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45"/>
         <!-- Przycisk Szukaj trasę -->
-        <ImageButton Source="route.png"
-                     Clicked="SearchPopup"
+        <ImageButton Source="route.png" Clicked="SearchPopup"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.01, 0.84, 70, 45"
-                     BackgroundColor="#CCFFFFFF"
-                     WidthRequest="45"
-                     x:Name="ShowSearch"/>
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45" x:Name="ShowSearch"/>
         <!-- Przycisk Zamknij szukaj trasę -->
-        <ImageButton Source="route.png"
-                     Clicked="CloseSearchPopup"
+        <ImageButton Source="route.png" Clicked="CloseSearchPopup"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.01, 0.84, 70, 45"
-                     BackgroundColor="#CCFFFFFF"
-                     WidthRequest="45"
-                     IsVisible="False"
-                     x:Name="HideSearch"/>
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45"
+                     IsVisible="False" x:Name="HideSearch"/>
 
         <!-- Przycisk Zlokalizuj Mnie -->
-        <ImageButton Source="location.png"
-                     Clicked="LocateMe"
+        <ImageButton Source="location.png" Clicked="LocateMe"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.96, 0.02, 40, 45" 
-                     BackgroundColor="#CCFFFFFF"
-                     WidthRequest="45" x:Name="LocateMeButton"/>
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45" x:Name="LocateMeButton"/>
+        <!-- Zapisane trasy -->
+        <ImageButton Source="bookmarkoutline.png"
+                     AbsoluteLayout.LayoutFlags="PositionProportional"
+                     AbsoluteLayout.LayoutBounds="0.01, 0.75, 70, 45" 
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45" Clicked="LoadLinesFromFile" x:Name="FlagShowing"/>
 
-        <ImageButton Source="flag.png"
-             AbsoluteLayout.LayoutFlags="PositionProportional"
-             AbsoluteLayout.LayoutBounds="0.56, 0.5, 40, 45" 
-             BackgroundColor="#CCFFFFFF"
-             WidthRequest="45"
-                     Clicked="LoadLinesFromFile"/>
+        <ImageButton Source="bookmarkoutline.png"
+                     AbsoluteLayout.LayoutFlags="PositionProportional"
+                     AbsoluteLayout.LayoutBounds="0.01, 0.75, 70, 45" 
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45" Clicked="CloseLoadedLines" x:Name="FlagClosing" IsVisible="False"/>
 
 
         <!-- Okno wyszukiwania połączenia trasy -->
@@ -62,6 +55,7 @@
                 <Entry Grid.Row="0" Grid.Column="0"
                        x:Name="EntryAddress"
                        Placeholder="Adres początkowy"
+                       Text="Moja lokalizacja"
                        Margin="10,10,10,10" TextChanged="RouteChanged"/>
                 <Frame Grid.Row="2" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
                 <!-- Pole tekstowe: Wpisz adres docelowy -->
@@ -106,18 +100,51 @@
 
                 <Label Grid.Row="1" Grid.Column="0" Text="" x:Name="DistanceTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Label Grid.Row="1" Grid.Column="1" Text="" x:Name="TimeTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-
+                <!-- Zaakceptuj trase -->
                 <Button Grid.Row="2" Grid.Column="0" Text="Rozpocznij" BackgroundColor="#0F950B" FontSize="16"
                         FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult" Clicked="AcceptButtonClicked"/>
+                <!-- Zapisz trase -->
                 <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Zapisz" HorizontalOptions="Center" CornerRadius="20"
                         FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult"/>
+                <!-- Odrzuć trase -->
                 <Button Grid.Row="2" Grid.Column="1" Text="Anuluj" BackgroundColor="#C61919" FontSize="16" x:Name="CancelButtonResult"
                         FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" Clicked="CloseResultPopup" HorizontalOptions="End" MinimumWidthRequest="120"/>
 
             </Grid>
         </StackLayout>
-        <StackLayout WidthRequest="360" HeightRequest="300" BackgroundColor="White" x:Name="StackLayoutContainer" IsVisible="False">
-    <Label Text="test"/>
-</StackLayout>
+        <!-- Okno że dotarłeś do celu -->
+        <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="RouteEnded" IsVisible="False"
+             AbsoluteLayout.LayoutBounds="0,1,1,0.15"
+             AbsoluteLayout.LayoutFlags="All">
+            <Grid RowDefinitions=".99*,.99*" ColumnDefinitions="*">
+                <Label Text="Dotarłeś do celu!" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Button Grid.Row="1" Text="Ok" HorizontalOptions="Center" WidthRequest="200" CornerRadius="20" Margin="0,15,0,0" Clicked="CloseSearchPopup"/>
+            </Grid>
+        </StackLayout>
+        <!-- Zapisane trasy -->
+        <StackLayout WidthRequest="360" HeightRequest="230" BackgroundColor="White" x:Name="StackLayoutContainer" IsVisible="False">
+            <Grid ColumnDefinitions=".30*,.30*,.20*,.20*" Margin="0,0,0,10">
+                <Label Grid.Column="0" Text="Skąd" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Grid.Column="1" Text="Dokąd" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Grid.Column="2" Text="Start" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Grid.Column="3" Text="Usuń" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+            </Grid>
+            <ScrollView>
+                <CollectionView x:Name="CollectionRoutes" HeightRequest="194">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="15" RowDefinitions=".094*" ColumnDefinitions=".30*,.30*,.20*,.20*">
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding CityStart}" HorizontalOptions="Center" FontSize="15"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding CityEnd}" HorizontalOptions="Center" FontSize="15" />
+                            <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" 
+                                         Clicked="NavigateCommand" CommandParameter="{Binding .}"/>
+                            <ImageButton Source="bin.png" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center"
+                                         Clicked="DeleteRouteCommand" CommandParameter="{Binding .}" BackgroundColor="Yellow"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            </ScrollView>
+        </StackLayout>
     </AbsoluteLayout>
 </ContentPage>
