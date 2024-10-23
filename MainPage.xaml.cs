@@ -195,6 +195,16 @@ namespace GpsApplication
 				CancelButtonResult.HorizontalOptions = LayoutOptions.FillAndExpand;
 				isRouteFromSavedJson = false;
 			}
+			if(isRouteFromSavedJson == false && StartLocalizationOfflineTemp != "Moja lokalizacja")
+			{
+				AcceptButtonResult.IsVisible = false;
+				Grid.SetColumnSpan(SaveButtonResult, 1);
+				CancelButtonResult.MinimumWidthRequest = 0;
+				SaveButtonResult.MinimumWidthRequest = 0;
+				CancelButtonResult.HorizontalOptions = LayoutOptions.FillAndExpand;
+				SaveButtonResult.HorizontalOptions = LayoutOptions.FillAndExpand;
+			}
+
 			SearchBar.IsVisible = false;
 			time = time.Replace("hours", "godz");
 			TimeTrip.Text = time.Remove(time.Length-1);
@@ -212,12 +222,22 @@ namespace GpsApplication
 			AcceptButtonResult.HorizontalOptions = LayoutOptions.Start;
 			CancelButtonResult.MinimumWidthRequest = 120;
 			CancelButtonResult.HorizontalOptions = LayoutOptions.End;
+
+			AcceptButtonResult.IsVisible = true;
+			Grid.SetColumnSpan(SaveButtonResult, 2);
+			SaveButtonResult.MinimumWidthRequest = 0;
+			SaveButtonResult.HorizontalOptions = LayoutOptions.Center;
+
+
 			nearbyEndLat = 0;
 			nearbyEndLong = 0;
 			//Zapisane trasy
 			FlagClosing.IsVisible = false;
 			FlagShowing.IsVisible = true;
 			StackLayoutContainer.IsVisible = false;
+
+			SaveButtonResult.Text = "Zapisz";
+			SaveButtonResult.IsEnabled = true;
 
 			MainMap.MapElements.Clear();
 			MainMap.Pins.Clear();
@@ -231,6 +251,8 @@ namespace GpsApplication
 			LocateMeButton.IsVisible = false;
 			FlagShowing.IsVisible = false;
 			FlagClosing.IsVisible = false;
+			SaveButtonResult.Text = "Zapisz";
+			SaveButtonResult.IsEnabled = true;
 
 			AskPop.IsVisible = false;
 			var location = await Geolocation.GetLastKnownLocationAsync();
@@ -513,11 +535,13 @@ namespace GpsApplication
 			{
 				File.Create(fileRoutesPath).Close();
 			}
-
 			string jsonString = temp.ToString();
 			string filePath = Path.Combine(FileSystem.AppDataDirectory, combine);
 			await File.WriteAllTextAsync(filePath, jsonString);
 			await File.AppendAllTextAsync(fileRoutesPath, $"{StartLocalizationOfflineTemp}" + " do " + $"{EndLocalizationOfflineTemp}" + Environment.NewLine);
+			//Komunikat o zapisywaniu
+			SaveButtonResult.Text = "Zapisano!";
+			SaveButtonResult.IsEnabled = false;
 		}
 		private async void LoadRoute(string start, string end)
 		{

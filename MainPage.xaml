@@ -105,7 +105,7 @@
                         FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult" Clicked="AcceptButtonClicked"/>
                 <!-- Zapisz trase -->
                 <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Zapisz" HorizontalOptions="Center" CornerRadius="20"
-                        FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult"/>
+                        FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult" Margin="5,2,5,2"/>
                 <!-- Odrzuć trase -->
                 <Button Grid.Row="2" Grid.Column="1" Text="Anuluj" BackgroundColor="#C61919" FontSize="16" x:Name="CancelButtonResult"
                         FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" Clicked="CloseResultPopup" HorizontalOptions="End" MinimumWidthRequest="120"/>
@@ -133,13 +133,13 @@
                 <CollectionView x:Name="CollectionRoutes" HeightRequest="194">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="15" RowDefinitions=".094*" ColumnDefinitions=".30*,.30*,.20*,.20*">
-                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding CityStart}" HorizontalOptions="Center" FontSize="15"/>
-                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding CityEnd}" HorizontalOptions="Center" FontSize="15" />
+                        <Grid Padding="15" RowDefinitions=".09*" ColumnDefinitions=".30*,.30*,.20*,.20*">
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding CityStart}" HorizontalOptions="Center" FontSize="15" VerticalOptions="Center"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding CityEnd}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="15" />
                             <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" 
                                          Clicked="NavigateCommand" CommandParameter="{Binding .}"/>
                             <ImageButton Source="bin.png" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center"
-                                         Clicked="DeleteRouteCommand" CommandParameter="{Binding .}" BackgroundColor="Yellow"/>
+                                         Clicked="DeleteRouteCommand" CommandParameter="{Binding .}"/>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
