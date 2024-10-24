@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using GpsApplication.Models;
 using System.Windows.Input;
 using System.Text;
+using System.Globalization;
 
 
 namespace GpsApplication
@@ -32,6 +33,10 @@ namespace GpsApplication
 		private double nearbyEndLong = 0;
 		//Uruchamianie trasy
 		private bool isStartingAtCurrentLocalization = false;
+		private string timeString;
+		private string distanceString;
+		private bool navigationStart = false;
+		private bool cancel = false;
 
 		public ObservableCollection<Routes> Route { get; set; }
 
@@ -130,9 +135,9 @@ namespace GpsApplication
 			temp["endlat"] = EndLat;
 			temp["endlong"] = EndLong;
 
-			AddingRouteToMap(json, StartLat, StartLong, EndLat, EndLong);
+			await AddingRouteToMap(json, StartLat, StartLong, EndLat, EndLong);
 		}
-		public void AddingRouteToMap(JObject json, double StartLat, double StartLong, double EndLat, double EndLong)
+		public async Task AddingRouteToMap(JObject json, double StartLat, double StartLong, double EndLat, double EndLong)
 		{
 			if (json["geocoded_waypoints"] != null && json["geocoded_waypoints"].Any())
 			{
@@ -160,6 +165,10 @@ namespace GpsApplication
 					//Time
 					var timeText = route["duration"]["text"].ToString();
 
+					//Parts distance
+					var parts = distanceText.Trim().Split(' ');
+					double value = double.Parse(parts[0], CultureInfo.InvariantCulture);
+
 					var pinstart = new Pin
 					{
 						Label = "Punkt startu",
@@ -172,14 +181,34 @@ namespace GpsApplication
 						Type = PinType.Place,
 						Location = new Location(EndLat, EndLong)
 					};
-					MainMap.MapElements.Add(polyline);
-					MainMap.Pins.Add(pinstart);
-					MainMap.Pins.Add(pinEnd);
-					MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
-										new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
-					nearbyEndLat = EndLat;
-					nearbyEndLong = EndLong;
-					ResultPop(timeText, distanceText);
+					if(value < 1000)
+					{
+						MainMap.MapElements.Add(polyline);
+						MainMap.Pins.Add(pinstart);
+						MainMap.Pins.Add(pinEnd);
+						MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
+											new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
+						nearbyEndLat = EndLat;
+						nearbyEndLong = EndLong;
+						SearchAddressButton.IsEnabled = true;
+						SearchAddressButton.Text = "Szukaj";
+						if (navigationStart == false)
+						{
+							ResultPop(timeText, distanceText);
+						}
+						else
+						{
+							timeText = timeText.Replace("hours", "godz");
+							timeString = timeText.Remove(timeText.Length - 1);
+							distanceString = distanceText;
+						}
+					} else
+					{
+						SearchAddressButton.Text = "Za długa trasa!";
+						await Task.Delay(5000);
+						SearchAddressButton.IsEnabled = true;
+						SearchAddressButton.Text = "Szukaj";
+					}
 				}
 			}
 		}
@@ -207,8 +236,11 @@ namespace GpsApplication
 
 			SearchBar.IsVisible = false;
 			time = time.Replace("hours", "godz");
-			TimeTrip.Text = time.Remove(time.Length-1);
+			timeString = time.Remove(time.Length - 1);
+			TimeTrip.Text = timeString; 
+			distanceString = distance;
 			DistanceTrip.Text = distance;
+
 		}
 		public void CloseResultPopup(object sender, EventArgs e)
 		{
@@ -253,8 +285,9 @@ namespace GpsApplication
 			FlagClosing.IsVisible = false;
 			SaveButtonResult.Text = "Zapisz";
 			SaveButtonResult.IsEnabled = true;
-
+			navigationStart = true;
 			AskPop.IsVisible = false;
+			cancel = false;
 			var location = await Geolocation.GetLastKnownLocationAsync();
 			int delay = 1000;
 			do
@@ -270,23 +303,34 @@ namespace GpsApplication
 					Location = new Location(location.Latitude, location.Longitude),
 				};
 				MainMap.Pins.Add(pin);
-				//CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong, "","");
+				var current = Connectivity.NetworkAccess;
+				if (current == NetworkAccess.Internet)
+				{
+					CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong, "","");
+					NavigationOnlineTest.IsVisible = true;
+					DistanceOnlineLabel.Text = distanceString;
+					TimeOnlineLabel.Text = timeString;
+
+				}
 				await Task.Delay(delay);
 				delay = 5000;
-
-
-
 				//await GetCurrentLocation();
 			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
 			Debug.WriteLine("Dotarłes na miejsce");
 			Title = "Mapa";
 			RouteEnded.IsVisible = true;
+			NavigationOnlineTest.IsVisible = false;	
 			MainMap.MapElements.Clear();
+			navigationStart = false;
 			var pinsToRemove = MainMap.Pins.Where(pin => pin.Type == PinType.Place).ToList();
 			foreach (var pin in pinsToRemove)
 			{
 				MainMap.Pins.Remove(pin);
 			}
+		}
+		private void CancelNavigationButton(object sender, EventArgs e)
+		{
+			cancel = true;
 		}
 		private void RemoveGenericPins()
 		{
@@ -459,8 +503,6 @@ namespace GpsApplication
 			EntryAddress.IsEnabled = true;
 			HighwayRoads.IsChecked = false;
 			PaidRoads.IsChecked = false;
-			SearchAddressButton.IsEnabled = true;
-			SearchAddressButton.Text = "Szukaj";
 		}
 		private async Task<(double latitude, double longitude)?> GetCoordinatesAsync(string address)
 		{

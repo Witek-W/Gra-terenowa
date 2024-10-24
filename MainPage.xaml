@@ -146,5 +146,13 @@
             </CollectionView>
             </ScrollView>
         </StackLayout>
+        <!-- Ekran informacji ile jeszcze zostało -->
+        <StackLayout WidthRequest="360" HeightRequest="50" BackgroundColor="White" IsVisible="False" x:Name="NavigationOnlineTest">
+            <Grid RowDefinitions=".06*" ColumnDefinitions=".40*,.40*,.20*">
+                <Label Grid.Column="0" Text="" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" x:Name="DistanceOnlineLabel"/>
+                <Label Grid.Column="1" Text="" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" x:Name="TimeOnlineLabel"/>
+                <ImageButton Grid.Column="2" Source="cancel.png" HorizontalOptions="Center" VerticalOptions="Center" Clicked="CancelNavigationButton" WidthRequest="52"/>
+            </Grid>
+        </StackLayout>
     </AbsoluteLayout>
 </ContentPage>

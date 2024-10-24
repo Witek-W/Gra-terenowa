@@ -59,6 +59,7 @@
 	<ItemGroup>
 	  <None Remove="Resources\Images\bin.png" />
 	  <None Remove="Resources\Images\bookmarkoutline.png" />
+	  <None Remove="Resources\Images\cancel.png" />
 	  <None Remove="Resources\Images\flag.png" />
 	  <None Remove="Resources\Images\layers.png" />
 	  <None Remove="Resources\Images\localizationdot.png" />
