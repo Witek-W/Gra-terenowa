@@ -35,6 +35,13 @@
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.96, 0.02, 40, 45" 
                      BackgroundColor="#CCFFFFFF" WidthRequest="45" x:Name="LocateMeButton"/>
+        
+        <!-- Przycisk anulowania trasy offline -->
+        <ImageButton Source="cancel.png" Clicked="CancelNavigationButton" IsVisible="False"
+             AbsoluteLayout.LayoutFlags="PositionProportional"
+             AbsoluteLayout.LayoutBounds="0.01, 0.84, 70, 45" 
+             BackgroundColor="#CCFFFFFF" WidthRequest="45" x:Name="CancelOfflineButton"/>
+        
         <!-- Zapisane trasy -->
         <ImageButton Source="bookmarkoutline.png"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
@@ -45,70 +52,42 @@
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.01, 0.75, 70, 45" 
                      BackgroundColor="#CCFFFFFF" WidthRequest="45" Clicked="CloseLoadedLines" x:Name="FlagClosing" IsVisible="False"/>
-
-
-        <!-- Okno wyszukiwania połączenia trasy -->
+        <!-- Testowanie nowego okna-->
         <StackLayout WidthRequest="360" HeightRequest="235" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
-            <Grid RowDefinitions=".99*,.20*,.99*,.20*,.99*,.20*,.99*" ColumnDefinitions=".50*,.30*,.10*">
-                <Frame Grid.Row="0" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
-                <!-- Pole tekstowe: Wpisz adres początkowy -->
-                <Entry Grid.Row="0" Grid.Column="0"
-                       x:Name="EntryAddress"
-                       Placeholder="Adres początkowy"
-                       Text="Moja lokalizacja"
-                       Margin="10,10,10,10" TextChanged="RouteChanged"/>
-                <Frame Grid.Row="2" Grid.Column="0" Padding="2" BorderColor="Gray" Margin="10,0,0,0"/>
-                <!-- Pole tekstowe: Wpisz adres docelowy -->
-                <Entry Grid.Row="2" Grid.Column="0"
-                       x:Name="EndAddress"
-                       Placeholder="Adres docelowy" 
-                       Margin="10,10,10,10" TextChanged="RouteChanged"/>
-                <!-- Unikaj opłat/autostrad -->
-                <Label Grid.Row="0" Grid.Column="1" Text="Unikaj opłat" HorizontalOptions="Center" VerticalOptions="Center"/> 
-                <CheckBox x:Name="PaidRoads" Grid.Row="0" Grid.Column="2"
-                          IsChecked="False"
-                          CheckedChanged="PaidRoadsCheckBox"/>
-                <Label Grid.Row="2" Grid.Column="1" Text="Unikaj autostrad" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <CheckBox x:Name="HighwayRoads" Grid.Row="2" Grid.Column="2"
-                          IsChecked="False"
-                          CheckedChanged="HighwayRoadsCheckBox"/>
-                <!-- Slider -->
-                <Picker Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Title="Wybierz środek transportu" 
-                        HorizontalOptions="Center" MaximumWidthRequest="250" SelectedIndex="0" x:Name="PickerValues">
-                    <Picker.ItemsSource>
-                        <x:Array Type="{x:Type x:String}">
-                            <x:String>Samochód</x:String>
-                            <x:String>Rower</x:String>
-                            <x:String>Na nogach</x:String>
-                        </x:Array>
-                    </Picker.ItemsSource>
-                </Picker>
-                <!-- Przycisk Szukaj -->
-                <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3"
-                        Text="Szukaj"
-                        Clicked="SearchAddress" x:Name="SearchAddressButton"
-                        Margin="10" CornerRadius="20" IsEnabled="False"/>
+            <Grid ColumnDefinitions=".50*,.50*" Margin="0,0,0,10">
+                <Label Grid.Column="0" Text="Cel" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Grid.Column="1" Text="Start" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
             </Grid>
+            <ScrollView>
+
+
+                <Grid Padding="15" RowDefinitions=".09*" ColumnDefinitions=".30*,.30*,.20*,.20*" HorizontalOptions="FillAndExpand">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Zator" HorizontalOptions="Center" FontSize="15" VerticalOptions="Center" x:Name="TestLabel"/>
+                    <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" Clicked="TestNewNavigation"/>
+                </Grid>
+
+
+            </ScrollView>
         </StackLayout>
         <!-- Okno z wynikami połączenia -->
-        <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="AskPop" IsVisible="False"
-                     AbsoluteLayout.LayoutBounds="0,1,1,0.15"
-                     AbsoluteLayout.LayoutFlags="All">
+        <StackLayout WidthRequest="360" HeightRequest="200" BackgroundColor="White" x:Name="TestPop" IsVisible="False"
+              AbsoluteLayout.LayoutBounds="0,1,1,0.15"
+              AbsoluteLayout.LayoutFlags="All">
             <Grid RowDefinitions=".99*,.99*,.99*" ColumnDefinitions=".50*,.50*">
                 <Label Grid.Row="0" Grid.Column="0" Text="Odległość" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Label Grid.Row="0" Grid.Column="1" Text="Czas" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
 
-                <Label Grid.Row="1" Grid.Column="0" Text="" x:Name="DistanceTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Label Grid.Row="1" Grid.Column="1" Text="" x:Name="TimeTrip" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Row="1" Grid.Column="0" Text="" x:Name="DistanceTriptest" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Row="1" Grid.Column="1" Text="" x:Name="TimeTriptest" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <!-- Zaakceptuj trase -->
                 <Button Grid.Row="2" Grid.Column="0" Text="Rozpocznij" BackgroundColor="#0F950B" FontSize="16"
-                        FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult" Clicked="AcceptButtonClicked"/>
+                 FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" HorizontalOptions="Start" MinimumWidthRequest="120" x:Name="AcceptButtonResult" Clicked="AcceptButtonClicked"/>
                 <!-- Zapisz trase -->
                 <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Zapisz" HorizontalOptions="Center" CornerRadius="20"
-                        FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult" Margin="5,2,5,2"/>
+                 FontSize="16" FontAttributes="Bold" Clicked="SaveRoute" x:Name="SaveButtonResult" Margin="5,2,5,2"/>
                 <!-- Odrzuć trase -->
                 <Button Grid.Row="2" Grid.Column="1" Text="Anuluj" BackgroundColor="#C61919" FontSize="16" x:Name="CancelButtonResult"
-                        FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" Clicked="CloseResultPopup" HorizontalOptions="End" MinimumWidthRequest="120"/>
+                 FontAttributes="Bold" CornerRadius="20" Margin="5,2,5,2" Clicked="CloseResultPopup" HorizontalOptions="End" MinimumWidthRequest="120"/>
 
             </Grid>
         </StackLayout>
@@ -123,22 +102,20 @@
         </StackLayout>
         <!-- Zapisane trasy -->
         <StackLayout WidthRequest="360" HeightRequest="230" BackgroundColor="White" x:Name="StackLayoutContainer" IsVisible="False">
-            <Grid ColumnDefinitions=".30*,.30*,.20*,.20*" Margin="0,0,0,10">
-                <Label Grid.Column="0" Text="Skąd" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <Label Grid.Column="1" Text="Dokąd" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <Label Grid.Column="2" Text="Start" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <Label Grid.Column="3" Text="Usuń" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+            <Grid ColumnDefinitions=".30*,.20*,.20*" Margin="0,0,0,10">
+                <Label Grid.Column="0" Text="Cel" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Grid.Column="1" Text="Start" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Grid.Column="2" Text="Usuń" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
             </Grid>
             <ScrollView>
                 <CollectionView x:Name="CollectionRoutes" HeightRequest="194">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Padding="15" RowDefinitions=".09*" ColumnDefinitions=".30*,.30*,.20*,.20*">
-                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding CityStart}" HorizontalOptions="Center" FontSize="15" VerticalOptions="Center"/>
-                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding CityEnd}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="15" />
-                            <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" 
+                            <Grid Padding="15" RowDefinitions=".09*" ColumnDefinitions=".30*,.20*,.20*">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding CityEnd}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="15" />
+                            <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="1" HorizontalOptions="Center" 
                                          Clicked="NavigateCommand" CommandParameter="{Binding .}"/>
-                            <ImageButton Source="bin.png" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center"
+                            <ImageButton Source="bin.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center"
                                          Clicked="DeleteRouteCommand" CommandParameter="{Binding .}"/>
                         </Grid>
                     </DataTemplate>
