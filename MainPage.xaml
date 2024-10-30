@@ -38,6 +38,12 @@
                      AbsoluteLayout.LayoutBounds="0.96, 0.02, 40, 45" 
                      BackgroundColor="#CCFFFFFF" WidthRequest="45" x:Name="LocateMeButton"/>
         
+        <!-- CHWILOWE -->
+        <ImageButton Source="flag.png" Clicked="ScanForNearbyPoints"
+             AbsoluteLayout.LayoutFlags="PositionProportional"
+             AbsoluteLayout.LayoutBounds="0.66, 0.52, 40, 45" 
+             BackgroundColor="#CCFFFFFF" WidthRequest="45"/>
+
         <!-- Przycisk anulowania trasy offline -->
         <ImageButton Source="cancel.png" Clicked="CancelNavigationButton" IsVisible="False"
              AbsoluteLayout.LayoutFlags="PositionProportional"

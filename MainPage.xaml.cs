@@ -68,7 +68,7 @@ namespace GpsApplication
 
 					if (distance <= nearbyDistance)
 					{
-						Debug.WriteLine($"Jesteś blisko punktu: {point.Name}");
+						DownloadQuiz(point.Name);
 						break;
 					}
 				}
@@ -77,6 +77,11 @@ namespace GpsApplication
 			{
 				Debug.WriteLine("Nie udało się pobrać lokalizacji użytkownika.");
 			}
+		}
+		public async void DownloadQuiz(string name)
+		{
+			var list = _context.Quiz.AsEnumerable().Where(p => p.PlaceName == name).ToList();
+			await Navigation.PushAsync(new QuizPage(list));
 		}
 		public void SetNoUser()
 		{
