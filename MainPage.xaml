@@ -6,8 +6,9 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="Mapa">
     <ContentPage.ToolbarItems>
-        <ToolbarItem IconImageSource="wifi.png" IsEnabled="True" x:Name="WifiIcon" Clicked="ResetIcon"/>
-        <ToolbarItem IconImageSource="user.png"/>
+        <ToolbarItem IconImageSource="refresh.png" Clicked="Refresh"/>
+        <ToolbarItem IconImageSource="user.png" x:Name="userimage" Clicked="GoToUserManager"/>
+        <ToolbarItem IconImageSource="wifi.png" IsEnabled="True" x:Name="WifiIcon"/>
     </ContentPage.ToolbarItems>
     <AbsoluteLayout>
         <maps:Map x:Name="MainMap"
@@ -60,14 +61,16 @@
                 <Label Grid.Column="1" Text="Start" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
             </Grid>
             <ScrollView>
-
-
-                <Grid Padding="15" RowDefinitions=".09*" ColumnDefinitions=".30*,.30*,.20*,.20*" HorizontalOptions="FillAndExpand">
-                    <Label Grid.Row="0" Grid.Column="0" Text="Zator" HorizontalOptions="Center" FontSize="15" VerticalOptions="Center" x:Name="TestLabel"/>
-                    <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" Clicked="TestNewNavigation"/>
-                </Grid>
-
-
+                <CollectionView x:Name="RoutesFromDB" HeightRequest="200">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="15" RowDefinitions=".09*" ColumnDefinitions=".30*,.30*,.20*,.20*" HorizontalOptions="FillAndExpand">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalOptions="Center" FontSize="15" VerticalOptions="Center" x:Name="TestLabel"/>
+                                <ImageButton Source="playbutton.png" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" Clicked="SearchRouteFromDB" CommandParameter="{Binding .}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
             </ScrollView>
         </StackLayout>
         <!-- Okno z wynikami połączenia -->

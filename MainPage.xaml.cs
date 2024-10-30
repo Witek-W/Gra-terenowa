@@ -10,6 +10,8 @@ using System.Windows.Input;
 using System.Text;
 using System.Globalization;
 using System.Threading.Channels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace GpsApplication
@@ -40,18 +42,49 @@ namespace GpsApplication
 		private bool cancel = false;
 
 		public ObservableCollection<Routes> Route { get; set; }
+		public ObservableCollection<Pointt> GamePointsDB { get; set; }
 
+		private readonly AppDbContext _context;
 		public MainPage()
 		{
 			Route = new ObservableCollection<Routes>();
+			GamePointsDB = new ObservableCollection<Pointt>();
 			client = new HttpClient();
+			_context = new AppDbContext();
+			Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
 			InitializeComponent();
-			CheckInternet();
 		}
-
-		private void ResetIcon(object sender, EventArgs e)
+		protected override void OnAppearing()
 		{
-			CheckInternet();
+			base.OnAppearing();
+			Refresh(null, null);
+			CheckUser();
+		}
+		private async void GoToUserManager(object sender, EventArgs e)
+		{
+			await Navigation.PushAsync(new UserManager());
+		}
+		public async Task CheckUser()
+		{
+			var userLogin = await SecureStorage.GetAsync("user_login");
+			if(userLogin != null)
+			{
+				userimage.IconImageSource = "userlogged.png";
+			}
+		}
+		private async void Refresh(object sender, EventArgs e)
+		{
+			await LoadRoutesFromDatabase();
+		}
+		private void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
+		{
+			if (e.NetworkAccess == NetworkAccess.Internet)
+			{
+				WifiIcon.IconImageSource = "wifi.png";
+			} else
+			{
+				WifiIcon.IconImageSource = "nowifi.png";
+			}
 		}
 		private async void LocateMe(object sender, EventArgs e)
 		{
@@ -393,14 +426,10 @@ namespace GpsApplication
 
 			return locations;
 		}
-		public async void SearchAddress()
+		public async void SearchAddress(string Endaddress)
 		{
 			var localization = await Geolocation.GetLastKnownLocationAsync();
 			var coordsStart = (localization.Latitude, localization.Longitude);
-
-			string Endaddress = "Zator";
-
-
 			EndLocalizationOfflineTemp = Endaddress;
 			var coordsEnd = await GetCoordinatesAsync(Endaddress);
 			double StartLatitude = coordsStart.Latitude;
@@ -445,15 +474,6 @@ namespace GpsApplication
 			ShowSearch.IsVisible = false;
 			HideSearch.IsVisible = true;
 			LocateMeButton.IsVisible = false;
-		}
-		private void TestNewNavigation(object sender, EventArgs e)
-		{
-			CheckInternet();
-			var current = Connectivity.NetworkAccess;
-			if (current == NetworkAccess.Internet)
-			{
-				SearchAddress();
-			}
 		}
 		
 		private void CloseSearchPopup(object sender, EventArgs e)
@@ -542,6 +562,27 @@ namespace GpsApplication
 				CollectionRoutes.ItemsSource = Route;
 			}
 		}
+		public async Task LoadRoutesFromDatabase()
+		{
+			GamePointsDB.Clear();
+			var routes = await _context.GamePoints.ToListAsync();
+			foreach(var points in routes)
+			{
+				GamePointsDB.Add(new Pointt
+				{
+					Name = points.Name,
+					lat = points.Latitude,
+					lon = points.Longitude,
+				});
+			}
+			RoutesFromDB.ItemsSource = GamePointsDB;
+		}
+		public void SearchRouteFromDB(object sender, EventArgs e)
+		{
+			ImageButton button = (ImageButton)sender;
+			var point = button.CommandParameter as Models.Pointt;
+			SearchAddress(point.Name);
+		}
 		public void NavigateCommand(object sender, EventArgs e)
 		{
 			ImageButton button = (ImageButton)sender;
@@ -583,17 +624,6 @@ namespace GpsApplication
 			HideSearch.IsVisible = false;
 			Title = "Mapa";
 			Route.Clear();
-		}
-		public async void CheckInternet()
-		{
-			var current = Connectivity.NetworkAccess;
-			if(current == NetworkAccess.Internet)
-			{
-				WifiIcon.IconImageSource = "wifi.png";
-			} else
-			{
-				WifiIcon.IconImageSource = "nowifi.png";
-			}
 		}
 	}
 }

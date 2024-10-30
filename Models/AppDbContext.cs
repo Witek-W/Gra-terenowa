@@ -10,15 +10,16 @@ namespace GpsApplication.Models
 {
 	public  class AppDbContext : DbContext
 	{
-		public DbSet<User> Users { get; set; }
+		public DbSet<User> User { get; set; }
 		public DbSet<GamePoints> GamePoints { get; set; }
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			var config = new ConfigurationBuilder()
-				.SetBasePath(Directory.GetCurrentDirectory())
-				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-				.Build();
-			string connectionString = config.GetConnectionString("DefaultConnection");
+			//var config = new ConfigurationBuilder()
+			//	.SetBasePath(Directory.GetCurrentDirectory())
+			//	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+			//	.Build();
+			//string connectionString = config.GetConnectionString("DefaultConnection");
+			string connectionString = "***REMOVED***"; 
 
 			optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 		}
