@@ -7,11 +7,9 @@ public partial class UserManager : ContentPage
 {
 	private readonly Auth _auth;
 	private readonly AppDbContext _context;
-	private readonly MainPage _main;
 	public UserManager()
 	{
 		_context = new AppDbContext();
-		_main = new MainPage();
 		_auth = new Auth(_context);
 		InitializeComponent();
 		CheckLoggedUser();
@@ -49,22 +47,38 @@ public partial class UserManager : ContentPage
 		await Navigation.PopAsync();
 	}
 	//Aktywowanie przycisku Rejestracji dopiero jak wszystkie pola bêd¹ wpisane
-	private void RegisterForm(object sender, TextChangedEventArgs e)
+	private async void RegisterForm(object sender, TextChangedEventArgs e)
 	{
-		if(!string.IsNullOrEmpty(LoginRegister.Text) && !string.IsNullOrEmpty(PasswordRegister.Text) && !string.IsNullOrEmpty(NameRegister.Text) && !string.IsNullOrEmpty(SurnameRegister.Text))
+		if(!CheckInternet())
+		{
+			RegisterButton.IsEnabled = false;
+			RegisterButton.Text = "B³¹d sieci!";
+		}
+
+		if (!string.IsNullOrEmpty(LoginRegister.Text) && !string.IsNullOrEmpty(PasswordRegister.Text)
+			&& !string.IsNullOrEmpty(NameRegister.Text) && !string.IsNullOrEmpty(SurnameRegister.Text)
+			&& CheckInternet())
 		{
 			RegisterButton.IsEnabled = true;
+			RegisterButton.Text = "Zarejestruj";
 		} else
 		{
 			RegisterButton.IsEnabled = false;
 		}
 	}
 	//Aktywowanie przycisku Logowania dopiero jak wszystkie pola bêd¹ wpisane
-	private void LoginForm(object sender, TextChangedEventArgs e)
+	private async void LoginForm(object sender, TextChangedEventArgs e)
 	{
-		if (!string.IsNullOrEmpty(LoginLogin.Text) && !string.IsNullOrEmpty(PasswordLogin.Text))
+		if(!CheckInternet())
+		{
+			LoginButton.IsEnabled = false;
+			LoginButton.Text = "B³¹d sieci!";
+		}
+
+		if (!string.IsNullOrEmpty(LoginLogin.Text) && !string.IsNullOrEmpty(PasswordLogin.Text) && CheckInternet())
 		{
 			LoginButton.IsEnabled = true;
+			LoginButton.Text = "Zaloguj";
 		}
 		else
 		{
@@ -83,5 +97,17 @@ public partial class UserManager : ContentPage
 		Title = "Zaloguj siê";
 		RegisterLayout.IsVisible = false;
 		LoginLayout.IsVisible = true;
+	}
+	//Sprawdzanie po³¹czenia z internetem
+	private bool CheckInternet()
+	{
+		var network = Connectivity.Current.NetworkAccess;
+		if (network == NetworkAccess.Internet)
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
 	}
 }

@@ -10,5 +10,7 @@ namespace GpsApplication.Models
 	{
 		public string CityStart { get; set; }
 		public string CityEnd { get; set; }
+		public double CityEndLat { get; set; }
+		public double CityEndLon { get; set; }
 	}
 }

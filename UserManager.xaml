@@ -41,7 +41,7 @@
         <!-- Zalogowany użytkownik -->
         <StackLayout IsVisible="False" x:Name="LoggedUser">
             <Grid RowDefinitions=".99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*" ColumnDefinitions=".100*" Padding="15">
-                <Label Grid.Row="0" Grid.Column="0" Text="Podaj swój login" FontSize="16" FontAttributes="Bold" x:Name="LoggedLabel"/>
+                <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="16" FontAttributes="Bold" x:Name="LoggedLabel"/>
 
                 <Button Grid.Row="8" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"/>
             </Grid>

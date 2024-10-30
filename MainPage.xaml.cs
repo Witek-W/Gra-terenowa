@@ -53,12 +53,38 @@ namespace GpsApplication
 			_context = new AppDbContext();
 			Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
 			InitializeComponent();
-		}
-		protected override void OnAppearing()
-		{
-			base.OnAppearing();
 			Refresh(null, null);
 			CheckUser();
+		}
+		public async void ScanForNearbyPoints(object sender, EventArgs e)
+		{
+			var location = await Geolocation.GetLastKnownLocationAsync();
+
+			if (location != null)
+			{
+				foreach (var point in GamePointsDB)
+				{
+					double distance = CalculateDistance(location.Latitude, location.Longitude, point.lat, point.lon);
+
+					if (distance <= nearbyDistance)
+					{
+						Debug.WriteLine($"Jesteś blisko punktu: {point.Name}");
+						break;
+					}
+				}
+			}
+			else
+			{
+				Debug.WriteLine("Nie udało się pobrać lokalizacji użytkownika.");
+			}
+		}
+		public void SetNoUser()
+		{
+			userimage.IconImageSource = "user.png";
+		}
+		public void SetUser()
+		{
+			userimage.IconImageSource = "userlogged.png";
 		}
 		private async void GoToUserManager(object sender, EventArgs e)
 		{
@@ -70,11 +96,19 @@ namespace GpsApplication
 			if(userLogin != null)
 			{
 				userimage.IconImageSource = "userlogged.png";
+			} else
+			{
+				userimage.IconImageSource = "user.png";
 			}
 		}
 		private async void Refresh(object sender, EventArgs e)
 		{
-			await LoadRoutesFromDatabase();
+			var network = Connectivity.Current.NetworkAccess;
+			if(network == NetworkAccess.Internet)
+			{
+				await LoadRoutesFromDatabase();
+			}
+			CheckUser();
 		}
 		private void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
 		{
@@ -426,16 +460,16 @@ namespace GpsApplication
 
 			return locations;
 		}
-		public async void SearchAddress(string Endaddress)
+		public async void SearchAddress(string Endaddress, double lat, double lon)
 		{
 			var localization = await Geolocation.GetLastKnownLocationAsync();
 			var coordsStart = (localization.Latitude, localization.Longitude);
 			EndLocalizationOfflineTemp = Endaddress;
-			var coordsEnd = await GetCoordinatesAsync(Endaddress);
+			var coordsEnd = ( lat, lon );
 			double StartLatitude = coordsStart.Latitude;
 			double StartLongtitude = coordsStart.Longitude;
-			double EndLatitude = coordsEnd.Value.latitude;
-			double Endlongtitude = coordsEnd.Value.longitude;
+			double EndLatitude = coordsEnd.lat;
+			double Endlongtitude = coordsEnd.lon;
 
 			CalculateRoute(StartLatitude, StartLongtitude, EndLatitude, Endlongtitude);
 		}
@@ -581,7 +615,7 @@ namespace GpsApplication
 		{
 			ImageButton button = (ImageButton)sender;
 			var point = button.CommandParameter as Models.Pointt;
-			SearchAddress(point.Name);
+			SearchAddress(point.Name,point.lat, point.lon);
 		}
 		public void NavigateCommand(object sender, EventArgs e)
 		{
