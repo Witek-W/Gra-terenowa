@@ -7,6 +7,7 @@
              Title="Mapa">
     <ContentPage.ToolbarItems>
         <ToolbarItem IconImageSource="wifi.png" IsEnabled="True" x:Name="WifiIcon" Clicked="ResetIcon"/>
+        <ToolbarItem IconImageSource="user.png"/>
     </ContentPage.ToolbarItems>
     <AbsoluteLayout>
         <maps:Map x:Name="MainMap"

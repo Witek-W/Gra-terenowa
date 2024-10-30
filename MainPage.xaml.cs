@@ -48,6 +48,7 @@ namespace GpsApplication
 			InitializeComponent();
 			CheckInternet();
 		}
+
 		private void ResetIcon(object sender, EventArgs e)
 		{
 			CheckInternet();
