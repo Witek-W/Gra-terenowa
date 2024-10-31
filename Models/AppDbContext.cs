@@ -13,6 +13,7 @@ namespace GpsApplication.Models
 		public DbSet<User> User { get; set; }
 		public DbSet<GamePoints> GamePoints { get; set; }
 		public DbSet<Quiz> Quiz { get; set; }
+		public DbSet<QuizHistory> QuizHistory { get; set; }
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			//var config = new ConfigurationBuilder()

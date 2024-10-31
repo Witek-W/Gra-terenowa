@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GpsApplication.UserManager"
-             Title="Zaloguj się">
+             Title="Ładowanie...">
     <!-- Logowanie -->
     <StackLayout>
         <StackLayout IsVisible="False" x:Name="LoginLayout">
@@ -40,10 +40,11 @@
         </StackLayout>
         <!-- Zalogowany użytkownik -->
         <StackLayout IsVisible="False" x:Name="LoggedUser">
-            <Grid RowDefinitions=".99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*" ColumnDefinitions=".100*" Padding="15">
-                <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="16" FontAttributes="Bold" x:Name="LoggedLabel"/>
-
-                <Button Grid.Row="8" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"/>
+            <Grid RowDefinitions="*,*,*" ColumnDefinitions=".100*" Padding="15">
+                <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="24" FontAttributes="Bold" x:Name="LoggedLabel" HorizontalOptions="CenterAndExpand"/>
+                <Label Grid.Row="1" Grid.Column="0" FontSize="22" FontAttributes="Bold" HorizontalOptions="CenterAndExpand" x:Name="ScoreUser"/>
+                <Button Grid.Row="2" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
+                        Margin="0,10,0,0" FontSize="16" FontAttributes="Bold"/>
             </Grid>
         </StackLayout>
     </StackLayout>

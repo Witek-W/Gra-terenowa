@@ -24,7 +24,7 @@ public partial class UserManager : ContentPage
 	private async void Register(object sender, EventArgs e)
 	{
 		await _auth.Register(NameRegister.Text, SurnameRegister.Text, LoginRegister.Text, PasswordRegister.Text);
-		await Navigation.PopAsync();
+		ShowLoginForm(null,null);
 	}
 	//Sprawdzanie czy u¿ytkownik jest zalogowany
 	private async void CheckLoggedUser()
@@ -33,11 +33,24 @@ public partial class UserManager : ContentPage
 		if(checkUser != null)
 		{
 			var name = await SecureStorage.GetAsync("user_name");
+			string idstring = await SecureStorage.GetAsync("user_id");
+			int iduser = Convert.ToInt16(idstring);
+			int score = 0;
+			if(CheckInternet())
+			{
+				score = _auth.ReturnUserScore(iduser);
+				ScoreUser.Text = "Zdobyte punkty: " + $"{score}";
+			} else
+			{
+				ScoreUser.Text = "Offline";
+			}
 			LoggedUser.IsVisible = true;
+			Title = "Zalogowano";
 			LoggedLabel.Text = "Witaj " + $"{name}";
 		} else
 		{
 			LoginLayout.IsVisible = true;
+			Title = "Zaloguj siê";
 		}
 	}
 	//Wylogowywanie u¿ytkownika

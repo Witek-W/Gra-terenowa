@@ -52,5 +52,31 @@ namespace GpsApplication.Models
             SecureStorage.Remove("user_id");
             SecureStorage.Remove("user_name");
         }
+        public int ReturnUserScore(int ID)
+        {
+            var user = _context.User.Single(p => p.ID == ID);
+            return user.AllPoints;
+        }
+        public async Task UpdateUserScore(int ID, int score)
+        {
+            var user = await _context.User.SingleAsync(p => p.ID == ID);
+            user.AllPoints = score;
+            await _context.SaveChangesAsync();
+        }
+        public bool CheckUserQuizHistory(string ID, string place)
+        {
+            int id = int.Parse(ID);
+            return _context.QuizHistory.Any(p => p.userID == id && p.QuizPlaceName == place);
+		}
+        public async Task AddingUserToQuizHistory(int id, string placename) 
+        {
+            var quizhis = new QuizHistory
+            {
+                QuizPlaceName = placename,
+                userID = id
+            };
+			await _context.QuizHistory.AddAsync(quizhis);
+			await _context.SaveChangesAsync();
+		}
     }
 }

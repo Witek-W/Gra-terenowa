@@ -10,16 +10,37 @@ public partial class QuizPage : ContentPage
 	private CheckBox lastCheck;
 	private int correctAnswer;
 	private int Score = 0;
+	private Auth _auth;
+	private AppDbContext _context;
 	public QuizPage(List<Quiz> quiz)
 	{
+		_context = new AppDbContext();
+		_auth = new Auth(_context);
 		InitializeComponent();
 		_quizList = quiz;
 		RenderQuiz();
 	}
-	private void RenderQuiz()
+	private async void RenderQuiz()
 	{
+		string userID = await SecureStorage.GetAsync("user_id");
+		var placename = _quizList[0].PlaceName;
+
+		if(_auth.CheckUserQuizHistory(userID,placename))
+		{
+			QuizLayout.IsVisible = false;
+			ErrorLayout.IsVisible = true;
+			return;
+		}
+
+		CheckBox1.IsChecked = false;
+		CheckBox2.IsChecked = false;
+		CheckBox3.IsChecked = false;
+		CheckBox4.IsChecked = false;
 		if(countIndex < _quizList.Count)
 		{
+			QuizLayout.IsVisible = true;
+			SummaryLayout.IsVisible = false;
+			Title = "Pytanie nr." + $"{countIndex + 1}";
 			var currentQuiz = _quizList[countIndex];
 			QuestionLabel.Text = currentQuiz.Question;
 			CheckBoxOption1.Text = currentQuiz.Answer1;
@@ -30,8 +51,20 @@ public partial class QuizPage : ContentPage
 			countIndex++;
 		} else
 		{
-			//Okno z podsumowaniem
+			QuizLayout.IsVisible = false;
+			SummaryLayout.IsVisible = true;
+			Title = "Podsumowanie";
+			ScoreLabel.Text = $"{Score}" + "/" + $"{_quizList.Count}";
+			int id = Convert.ToInt32(userID);
+			int userPoints = _auth.ReturnUserScore(id);
+			userPoints += Score;
+			await _auth.UpdateUserScore(id, userPoints);
+			await _auth.AddingUserToQuizHistory(id, _quizList[0].PlaceName);
 		}
+	}
+	private async void ReturnToMainPage(object sender, EventArgs e)
+	{
+		await Navigation.PopAsync();
 	}
 	private void ConfirmButton(object sender, EventArgs e)
 	{

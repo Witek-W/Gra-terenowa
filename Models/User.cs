@@ -14,6 +14,7 @@ namespace GpsApplication.Models
 		public string Surname { get; set; }
 		public string Login { get; set; }
 		public string Password { get; set; }
+		public int AllPoints { get; set; }
 
 	}
 }

@@ -4,29 +4,49 @@
              x:Class="GpsApplication.QuizPage"
              Title="Quiz">
     <StackLayout>
-        <Grid RowDefinitions="*,*,*,*,*,*" ColumnDefinitions=".10*,.90*">
-            <!-- Pytanie -->
-            <Label Grid.Row="0" Grid.ColumnSpan="2" x:Name="QuestionLabel" FontSize="22" FontAttributes="Bold"
-                   HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" Margin="0,0,0,15"/>
-            <!-- Opcja1 -->
-            <CheckBox Grid.Row="1" Grid.Column="0" x:Name="CheckBox1" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
-            <Label Grid.Row="1" Grid.Column="1" x:Name="CheckBoxOption1" FontSize="20"
-                   HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
-            <!-- Opcja2 -->
-            <CheckBox Grid.Row="2" Grid.Column="0" x:Name="CheckBox2" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
-            <Label Grid.Row="2" Grid.Column="1" x:Name="CheckBoxOption2" FontSize="20"
-                   HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
-            <!-- Opcja3 -->
-            <CheckBox Grid.Row="3" Grid.Column="0" x:Name="CheckBox3" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
-            <Label Grid.Row="3" Grid.Column="1" x:Name="CheckBoxOption3" FontSize="20"
-                   HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
-            <!-- Opcja4 -->
-            <CheckBox Grid.Row="4" Grid.Column="0" x:Name="CheckBox4" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
-            <Label Grid.Row="4" Grid.Column="1" x:Name="CheckBoxOption4" FontSize="20"
-                   HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
-            <!-- Przycisk zatwierdź -->
-            <Button Grid.Row="5" Grid.ColumnSpan="2" x:Name="CheckBoxButton" CornerRadius="20" Text="Dalej" HorizontalOptions="CenterAndExpand"
-                    MinimumWidthRequest="240" FontSize="16" FontAttributes="Bold" IsEnabled="False" Clicked="ConfirmButton"/>
-        </Grid>
+        <!-- Quiz -->
+        <StackLayout IsVisible="True" x:Name="QuizLayout">
+            <Grid RowDefinitions="*,*,*,*,*,*" ColumnDefinitions=".10*,.90*">
+                <!-- Pytanie -->
+                <Label Grid.Row="0" Grid.ColumnSpan="2" x:Name="QuestionLabel" FontSize="22" FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" Margin="0,0,0,15"/>
+                <!-- Opcja1 -->
+                <CheckBox Grid.Row="1" Grid.Column="0" x:Name="CheckBox1" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
+                <Label Grid.Row="1" Grid.Column="1" x:Name="CheckBoxOption1" FontSize="20"
+                       HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
+                <!-- Opcja2 -->
+                <CheckBox Grid.Row="2" Grid.Column="0" x:Name="CheckBox2" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
+                <Label Grid.Row="2" Grid.Column="1" x:Name="CheckBoxOption2" FontSize="20"
+                       HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
+                <!-- Opcja3 -->
+                <CheckBox Grid.Row="3" Grid.Column="0" x:Name="CheckBox3" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
+                <Label Grid.Row="3" Grid.Column="1" x:Name="CheckBoxOption3" FontSize="20"
+                       HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
+                <!-- Opcja4 -->
+                <CheckBox Grid.Row="4" Grid.Column="0" x:Name="CheckBox4" Margin="10,0,0,15" CheckedChanged="CheckBoxChanged"/>
+                <Label Grid.Row="4" Grid.Column="1" x:Name="CheckBoxOption4" FontSize="20"
+                       HorizontalOptions="CenterAndExpand" VerticalOptions="Center" HorizontalTextAlignment="Center" Margin="0,0,0,15"/>
+                <!-- Przycisk zatwierdź -->
+                <Button Grid.Row="5" Grid.ColumnSpan="2" x:Name="CheckBoxButton" CornerRadius="20" Text="Dalej" HorizontalOptions="CenterAndExpand"
+                        MinimumWidthRequest="240" FontSize="16" FontAttributes="Bold" IsEnabled="False" Clicked="ConfirmButton"/>
+            </Grid>
+        </StackLayout>
+        <!-- Podsumowanie -->
+        <StackLayout IsVisible="False" x:Name="SummaryLayout" Padding="10">
+            <Grid RowDefinitions="*,*" ColumnDefinitions=".50*,.50*">
+                <Label Grid.Row="0" Grid.Column="0" Text="Zdobyte punkty: " FontSize="22" FontAttributes="Bold" HorizontalOptions="Center"/>
+                <Label Grid.Row="0" Grid.Column="1" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" x:Name="ScoreLabel"/>
+                <Button Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="CenterAndExpand" MinimumWidthRequest="240"
+                        CornerRadius="20" FontSize="16" FontAttributes="Bold" Text="Wyjdź" Margin="0,10,0,0" Clicked="ReturnToMainPage"/>
+            </Grid>
+        </StackLayout>
+        <!-- Ekran informacyjny, że użytkownik już rozwiązał ten quiz -->
+        <StackLayout IsVisible="False" x:Name="ErrorLayout" Padding="10">
+            <Grid RowDefinitions="*,*" ColumnDefinitions=".100*">
+                <Label Grid.Row="0" Text="Już rozwiązałeś ten quiz" TextColor="Red" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center"/>
+                <Button Grid.Row="1"  HorizontalOptions="CenterAndExpand" MinimumWidthRequest="240"
+                        CornerRadius="20" FontSize="16" FontAttributes="Bold" Text="Wyjdź" Margin="0,10,0,0" Clicked="ReturnToMainPage"/>
+            </Grid>
+        </StackLayout>
     </StackLayout>
 </ContentPage>
