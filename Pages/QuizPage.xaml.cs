@@ -12,10 +12,13 @@ public partial class QuizPage : ContentPage
 	private int Score = 0;
 	private Auth _auth;
 	private AppDbContext _context;
+	private UserManager _user;
+	string filePath = Path.Combine(FileSystem.AppDataDirectory, "Score.txt");
 	public QuizPage(List<Quiz> quiz)
 	{
 		_context = new AppDbContext();
 		_auth = new Auth(_context);
+		_user = new UserManager();
 		InitializeComponent();
 		_quizList = quiz;
 		RenderQuiz();
@@ -25,7 +28,7 @@ public partial class QuizPage : ContentPage
 		string userID = await SecureStorage.GetAsync("user_id");
 		var placename = _quizList[0].PlaceName;
 
-		try
+		if (_user.CheckInternet())
 		{
 			if(_auth.CheckUserQuizHistory(userID,placename))
 			{
@@ -33,10 +36,20 @@ public partial class QuizPage : ContentPage
 				ErrorLayout.IsVisible = true;
 				return;
 			}
-		}catch(Exception e)
+		} else
 		{
-
+			var content = File.ReadAllLines(filePath);
+			foreach(var line in content)
+			{
+				if(line.Contains(placename))
+				{
+					QuizLayout.IsVisible = false;
+					ErrorLayout.IsVisible = true;
+					return;
+				}
+			}
 		}
+		
 
 		CheckBox1.IsChecked = false;
 		CheckBox2.IsChecked = false;
@@ -62,11 +75,27 @@ public partial class QuizPage : ContentPage
 			Title = "Podsumowanie";
 			ScoreLabel.Text = $"{Score}" + "/" + $"{_quizList.Count}";
 			int id = Convert.ToInt32(userID);
-			int userPoints = _auth.ReturnUserScore(id);
-			userPoints += Score;
-			await _auth.UpdateUserScore(id, userPoints);
-			await _auth.AddingUserToQuizHistory(id, _quizList[0].PlaceName);
+			if(_user.CheckInternet())
+			{
+				int userPoints = _auth.ReturnUserScore(id);
+				userPoints += Score;
+				await _auth.UpdateUserScore(id, userPoints);
+				await _auth.AddingUserToQuizHistory(id, _quizList[0].PlaceName);
+			} else
+			{
+				await UpdateOfflineTxt(Score, placename);
+			}
 		}
+	}
+	//Wpisanie zdobytych punktow uzytownika oraz nazwy quizu do pliku offline
+	private async Task UpdateOfflineTxt(int points, string place)
+	{
+		var content = File.ReadAllLines(filePath);
+		int pointsInt = int.Parse(content[0]);
+		int allPoints = pointsInt + points;
+		content[0] = allPoints.ToString();
+		await File.WriteAllLinesAsync(filePath, content);
+		await File.AppendAllTextAsync(filePath, place + Environment.NewLine);
 	}
 	private async void ReturnToMainPage(object sender, EventArgs e)
 	{

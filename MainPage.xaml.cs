@@ -53,22 +53,21 @@ namespace GpsApplication
 		private double screenHeight;
 		//Popup
 		private InfoPopup _popup;
-
 		public ObservableCollection<Routes> Route { get; set; }
 		public ObservableCollection<Pointt> GamePointsDB { get; set; }
-
 		private readonly AppDbContext _context;
+		private readonly Auth _auth;
 		public MainPage()
 		{
 			Route = new ObservableCollection<Routes>();
 			GamePointsDB = new ObservableCollection<Pointt>();
 			client = new HttpClient();
 			_context = new AppDbContext();
+			_auth = new Auth(_context);
 			screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
 			screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
 			Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
 			InitializeComponent();
-
 			//Przycisk Zmień Mapę
 			AbsoluteLayout.SetLayoutBounds(ChangeMapLayerButton, new Rect(0.01, screenHeight * 0.75, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(ChangeMapLayerButton, AbsoluteLayoutFlags.None);
@@ -114,8 +113,8 @@ namespace GpsApplication
 					DownloadQuiz(point.Name);
 					break;
 				}
+				ShowPopup("Nie znaleziono w okolicy punktów gry terenowej");
 			}
-			ShowPopup("Nie znaleziono w okolicy punktów gry terenowej");
 		}
 		public async void DownloadQuiz(string name)
 		{
@@ -173,7 +172,9 @@ namespace GpsApplication
 				try
 				{
 					await LoadRoutesFromDatabase();
-				}catch(Exception ex)
+					UpdateDataBaseOfflineTxt();
+				}
+				catch(Exception ex)
 				{
 
 				}
@@ -183,6 +184,30 @@ namespace GpsApplication
 				WifiIcon.IconImageSource = "nowifi.png";
 			}
 			CheckUser();
+		}
+		//Aktualizowanie bazy danych punktów na podstawie pliku offline
+		private async Task UpdateDataBaseOfflineTxt()
+		{
+			var userLogin = await SecureStorage.GetAsync("user_login");
+			if(userLogin != null)
+			{
+				var useridstring = await SecureStorage.GetAsync("user_id");
+				var filePath = Path.Combine(FileSystem.AppDataDirectory, "Score.txt");
+				var lines = File.ReadAllLines(filePath);
+				if (lines.Length != 1)
+				{
+					int id = int.Parse(useridstring);
+					int userDatabasePoints =  _auth.ReturnUserScore(id);
+					int userScoreOffline = int.Parse(lines[0]);
+					userScoreOffline += userDatabasePoints;
+					await _auth.UpdateUserScore(id, userScoreOffline);
+					for(int i = 1; i < lines.Length; i++)
+					{
+						await _auth.AddingUserToQuizHistory(id, lines[i]);
+					}
+					await File.WriteAllTextAsync(filePath, "0");
+				}
+			}
 		}
 		private async void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
 		{
@@ -622,6 +647,13 @@ namespace GpsApplication
 				await File.AppendAllTextAsync(fileRoutesPath, $"{EndLocalizationOfflineTemp}" + Environment.NewLine);
 				//Zapisywanie quizu żeby był dostępny offline
 				await File.WriteAllTextAsync(filePath2, json);
+				//Tworzenie pliku z wynikami jeżeli nie istnieje
+				string fileScorePath = Path.Combine(FileSystem.AppDataDirectory, "Score.txt");
+				if (!File.Exists(fileScorePath))
+				{
+					File.Create(fileScorePath).Close();
+					File.WriteAllText(fileScorePath, "0");
+				}
 				//Komunikat o zapisywaniu
 				SaveButtonResult.Text = "Zapisano!";
 				SaveButtonResult.IsEnabled = false;
