@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GpsApplication.Pages.Popups.Leaderboard"
+             Title="Ranking">
+    <VerticalStackLayout>
+        <CollectionView x:Name="LeaderboardCollection">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BorderColor="Black" CornerRadius="0" Padding="0">
+                        <Grid RowDefinitions="*" ColumnDefinitions=".05*,.35*,.45*,.08*" Padding="10">
+                            <Grid.Triggers>
+                                <DataTrigger TargetType="Grid" Binding="{Binding ID}" Value="1">
+                                    <Setter Property="BackgroundColor" Value="Gold"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Grid" Binding="{Binding ID}" Value="2">
+                                    <Setter Property="BackgroundColor" Value="Silver"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Grid" Binding="{Binding ID}" Value="3">
+                                    <Setter Property="BackgroundColor" Value="SaddleBrown"/>
+                                </DataTrigger>
+                            </Grid.Triggers>
+                            <Label Grid.Column="0" Text="{Binding ID}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold"/>
+                            <Label Grid.Column="1" Text="{Binding Name}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18"/>
+                            <Label Grid.Column="2" Text="{Binding Surname}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18"/>
+                            <Label Grid.Column="3" Text="{Binding AllPoints}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
+</ContentPage>

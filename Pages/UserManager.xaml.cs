@@ -1,4 +1,5 @@
 using GpsApplication.Models;
+using GpsApplication.Pages.Popups;
 using System.ComponentModel;
 
 namespace GpsApplication;
@@ -13,6 +14,22 @@ public partial class UserManager : ContentPage
 		_auth = new Auth(_context);
 		InitializeComponent();
 		CheckLoggedUser();
+	}
+	//Prze³¹czenia na stronê z tabel¹ wyników
+	private async void LeaderboardButton(object sender, EventArgs e)
+	{
+		if(CheckInternet())
+		{
+			var page = new Leaderboard();
+			await Navigation.PushAsync(page);
+		} else
+		{
+			Leaderboard.IsEnabled = false;
+			Leaderboard.Text = "Brak sieci";
+			await Task.Delay(4000);
+			Leaderboard.Text = "Tabela wyników";
+			Leaderboard.IsEnabled = true;
+		}
 	}
 	//Logowanie u¿ytkownika
 	private async void Login(object sender, EventArgs e)
@@ -112,7 +129,7 @@ public partial class UserManager : ContentPage
 		LoginLayout.IsVisible = true;
 	}
 	//Sprawdzanie po³¹czenia z internetem
-	private bool CheckInternet()
+	public bool CheckInternet()
 	{
 		var network = Connectivity.Current.NetworkAccess;
 		if (network == NetworkAccess.Internet)

@@ -41,7 +41,8 @@ namespace GpsApplication.Models
                 Name = name,
                 Surname = surname,
                 Login = login,
-                Password = passwordHash
+                Password = passwordHash,
+                AllPoints = 0
             };
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();

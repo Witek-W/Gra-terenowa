@@ -351,6 +351,7 @@ namespace GpsApplication
 		{
 			TestPop.IsVisible = false;
 			LocateMeButton.IsVisible = true;
+			CheckNearbyPointsButton.IsVisible = true;
 			Title = "Mapa";
 			SaveButtonResult.IsVisible = true;
 			ShowSearch.IsVisible = true;
@@ -387,6 +388,7 @@ namespace GpsApplication
 			ShowSearch.IsVisible = false;
 			HideSearch.IsVisible = false;
 			LocateMeButton.IsVisible = false;
+			CheckNearbyPointsButton.IsVisible = false;
 			FlagShowing.IsVisible = false;
 			FlagClosing.IsVisible = false;
 			SaveButtonResult.Text = "Zapisz";
@@ -438,6 +440,7 @@ namespace GpsApplication
 			TestPop.IsVisible = false;
 			ShowSearch.IsVisible = true;
 			LocateMeButton.IsVisible = true;
+			CheckNearbyPointsButton.IsVisible = true;
 			FlagShowing.IsVisible = true;
 		}
 		private void CancelNavigationButton(object sender, EventArgs e)
@@ -579,6 +582,7 @@ namespace GpsApplication
 			ShowSearch.IsVisible = false;
 			HideSearch.IsVisible = true;
 			LocateMeButton.IsVisible = false;
+			CheckNearbyPointsButton.IsVisible = false;
 		}
 		
 		private void CloseSearchPopup(object sender, EventArgs e)
@@ -591,6 +595,7 @@ namespace GpsApplication
 			ShowSearch.IsVisible = true;
 			HideSearch.IsVisible = false;
 			LocateMeButton.IsVisible = true;
+			CheckNearbyPointsButton.IsVisible = true;
 			Title = "Mapa";
 			RouteEnded.IsVisible = false;
 		}
