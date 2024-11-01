@@ -12,6 +12,8 @@ using System.Globalization;
 using System.Threading.Channels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Maui.Layouts;
+using System.Xml.Linq;
 
 
 namespace GpsApplication
@@ -40,6 +42,9 @@ namespace GpsApplication
 		private string distanceString;
 		private bool navigationStart = false;
 		private bool cancel = false;
+		//Rozmiar ekranu urządzenia
+		private double screenWidth;
+		private double screenHeight;
 
 		public ObservableCollection<Routes> Route { get; set; }
 		public ObservableCollection<Pointt> GamePointsDB { get; set; }
@@ -51,37 +56,74 @@ namespace GpsApplication
 			GamePointsDB = new ObservableCollection<Pointt>();
 			client = new HttpClient();
 			_context = new AppDbContext();
+			screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
+			screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
 			Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
 			InitializeComponent();
+
+			//Przycisk Zmień Mapę
+			AbsoluteLayout.SetLayoutBounds(ChangeMapLayerButton, new Rect(0.01, screenHeight * 0.75, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(ChangeMapLayerButton, AbsoluteLayoutFlags.None);
+			//Przycisk Szukaj trasę
+			AbsoluteLayout.SetLayoutBounds(ShowSearch, new Rect(0.01, screenHeight * 0.68, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(ShowSearch, AbsoluteLayoutFlags.None);
+			//Przycisk Zamknij szukaj trasę
+			AbsoluteLayout.SetLayoutBounds(HideSearch, new Rect(0.01, screenHeight * 0.68, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(HideSearch, AbsoluteLayoutFlags.None);
+			//Przycisk anulowania trasy offline
+			AbsoluteLayout.SetLayoutBounds(CancelOfflineButton, new Rect(0.01, screenHeight * 0.68, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(CancelOfflineButton, AbsoluteLayoutFlags.None);
+			//Zapisane trasy
+			AbsoluteLayout.SetLayoutBounds(FlagShowing, new Rect(0.01, screenHeight * 0.61, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(FlagShowing, AbsoluteLayoutFlags.None);
+			AbsoluteLayout.SetLayoutBounds(FlagClosing, new Rect(0.01, screenHeight * 0.61, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(FlagClosing, AbsoluteLayoutFlags.None);
+
 			Refresh(null, null);
 			CheckUser();
 		}
 		public async void ScanForNearbyPoints(object sender, EventArgs e)
 		{
-			var location = await Geolocation.GetLastKnownLocationAsync();
-
-			if (location != null)
+			if(GamePointsDB.Count == 0)
 			{
-				foreach (var point in GamePointsDB)
-				{
-					double distance = CalculateDistance(location.Latitude, location.Longitude, point.lat, point.lon);
-
-					if (distance <= nearbyDistance)
-					{
-						DownloadQuiz(point.Name);
-						break;
-					}
-				}
+				GamePointsDB = await LoadGamePointsFromFile();
 			}
-			else
+			var location = await Geolocation.GetLastKnownLocationAsync();
+			foreach (var point in GamePointsDB)
 			{
-				Debug.WriteLine("Nie udało się pobrać lokalizacji użytkownika.");
+				double distance = CalculateDistance(location.Latitude, location.Longitude, point.lat, point.lon);
+
+				if (distance <= nearbyDistance)
+				{
+					DownloadQuiz(point.Name);
+					break;
+				}
 			}
 		}
 		public async void DownloadQuiz(string name)
 		{
-			var list = _context.Quiz.AsEnumerable().Where(p => p.PlaceName == name).ToList();
+			List<Quiz> list;
+			var network = Connectivity.Current.NetworkAccess;
+			if (network == NetworkAccess.Internet)
+			{
+				list = _context.Quiz.AsEnumerable().Where(p => p.PlaceName == name).ToList();
+			} else
+			{
+				list = await LoadQuizFromJsonOffline(name);
+			}
 			await Navigation.PushAsync(new QuizPage(list));
+		}
+		//Odczytywanie zapisywanego quizu.json na List<Quiz>
+		private async Task<List<Quiz>> LoadQuizFromJsonOffline(string filename)
+		{
+			var filepath = Path.Combine(FileSystem.AppDataDirectory, filename + "quiz.json");
+			if(File.Exists(filepath))
+			{
+				var json = await File.ReadAllTextAsync(filepath);
+				var quizlist = JsonConvert.DeserializeObject<List<Quiz>>(json);
+				return quizlist;
+			}
+			return new List<Quiz>();
 		}
 		public void SetNoUser()
 		{
@@ -112,18 +154,16 @@ namespace GpsApplication
 			if(network == NetworkAccess.Internet)
 			{
 				await LoadRoutesFromDatabase();
-			}
-			CheckUser();
-		}
-		private void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
-		{
-			if (e.NetworkAccess == NetworkAccess.Internet)
-			{
 				WifiIcon.IconImageSource = "wifi.png";
 			} else
 			{
 				WifiIcon.IconImageSource = "nowifi.png";
 			}
+			CheckUser();
+		}
+		private async void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
+		{
+			Refresh(null,null);
 		}
 		private async void LocateMe(object sender, EventArgs e)
 		{
@@ -505,6 +545,8 @@ namespace GpsApplication
 		}
 		private void SearchPopup(object sender, EventArgs e)
 		{
+			//Szerokość okna
+			SearchBar.WidthRequest = screenWidth;
 			//Zapisane trasy
 			FlagClosing.IsVisible = false;
 			FlagShowing.IsVisible = false;
@@ -528,15 +570,6 @@ namespace GpsApplication
 			Title = "Mapa";
 			RouteEnded.IsVisible = false;
 		}
-		//Checkbox
-		private void PaidRoadsCheckBox(object sender, CheckedChangedEventArgs e)
-		{
-			Tools = e.Value; 
-		}
-		private void HighwayRoadsCheckBox(object sender, CheckedChangedEventArgs e)
-		{
-			Highway = e.Value;
-		}
 		//Saving json
 		private async void SaveRoute(object sender, EventArgs e)
 		{
@@ -553,8 +586,13 @@ namespace GpsApplication
 			{
 				string jsonString = temp.ToString();
 				string filePath = Path.Combine(FileSystem.AppDataDirectory, combine);
+				var list = _context.Quiz.AsEnumerable().Where(p => p.PlaceName == EndLocalizationOfflineTemp).ToList();
+				var json = JsonConvert.SerializeObject(list);
+				var filePath2 = Path.Combine(FileSystem.AppDataDirectory, EndLocalizationOfflineTemp + "quiz.json");
 				await File.WriteAllTextAsync(filePath, jsonString);
 				await File.AppendAllTextAsync(fileRoutesPath, $"{EndLocalizationOfflineTemp}" + Environment.NewLine);
+				//Zapisywanie quizu żeby był dostępny offline
+				await File.WriteAllTextAsync(filePath2, json);
 				//Komunikat o zapisywaniu
 				SaveButtonResult.Text = "Zapisano!";
 				SaveButtonResult.IsEnabled = false;
@@ -582,6 +620,7 @@ namespace GpsApplication
 		public void LoadLinesFromFile(object sender, EventArgs e)
 		{
 			StackLayoutContainer.IsVisible = true;
+			StackLayoutContainer.WidthRequest = screenWidth;
 			ShowSearch.IsVisible = false;
 			HideSearch.IsVisible = false;
 			FlagShowing.IsVisible = false;
@@ -614,7 +653,25 @@ namespace GpsApplication
 					lon = points.Longitude,
 				});
 			}
+			await SaveGamePointsToFile(GamePointsDB);
 			RoutesFromDB.ItemsSource = GamePointsDB;
+		}
+		private async Task SaveGamePointsToFile(ObservableCollection<Pointt> gamePoints)
+		{
+			var json = JsonConvert.SerializeObject(gamePoints, Formatting.Indented);
+			var filepath = Path.Combine(FileSystem.AppDataDirectory, "GamePointsOffline.json");
+			await File.WriteAllTextAsync(filepath, json);
+		}
+		private async Task<ObservableCollection<Pointt>> LoadGamePointsFromFile()
+		{
+			var filepath = Path.Combine(FileSystem.AppDataDirectory, "GamePointsOffline.json");
+			if(File.Exists(filepath))
+			{
+				var json = await File.ReadAllTextAsync(filepath);
+				var result = JsonConvert.DeserializeObject<ObservableCollection<Pointt>>(json);
+				return result;
+			}
+			return new ObservableCollection<Pointt>();
 		}
 		public void SearchRouteFromDB(object sender, EventArgs e)
 		{

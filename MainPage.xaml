@@ -19,7 +19,7 @@
         <ImageButton Source="layers.png" Clicked="ChangeMap"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
                      AbsoluteLayout.LayoutBounds="0.01, 0.93, 70, 45"
-                     BackgroundColor="#CCFFFFFF" WidthRequest="45"/>
+                     BackgroundColor="#CCFFFFFF" WidthRequest="45" x:Name="ChangeMapLayerButton"/>
         <!-- Przycisk Szukaj trasę -->
         <ImageButton Source="route.png" Clicked="SearchPopup"
                      AbsoluteLayout.LayoutFlags="PositionProportional"
@@ -61,7 +61,7 @@
                      AbsoluteLayout.LayoutBounds="0.01, 0.75, 70, 45" 
                      BackgroundColor="#CCFFFFFF" WidthRequest="45" Clicked="CloseLoadedLines" x:Name="FlagClosing" IsVisible="False"/>
         <!-- Trasy z bazy danych -->
-        <StackLayout WidthRequest="360" HeightRequest="235" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
+        <StackLayout HeightRequest="235" BackgroundColor="White" x:Name="SearchBar" IsVisible="False">
             <Grid ColumnDefinitions=".50*,.50*" Margin="0,0,0,10">
                 <Label Grid.Column="0" Text="Cel" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Label Grid.Column="1" Text="Start" FontSize="18" HorizontalOptions="Center" FontAttributes="Bold"/>

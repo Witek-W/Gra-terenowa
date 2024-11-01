@@ -25,11 +25,17 @@ public partial class QuizPage : ContentPage
 		string userID = await SecureStorage.GetAsync("user_id");
 		var placename = _quizList[0].PlaceName;
 
-		if(_auth.CheckUserQuizHistory(userID,placename))
+		try
 		{
-			QuizLayout.IsVisible = false;
-			ErrorLayout.IsVisible = true;
-			return;
+			if(_auth.CheckUserQuizHistory(userID,placename))
+			{
+				QuizLayout.IsVisible = false;
+				ErrorLayout.IsVisible = true;
+				return;
+			}
+		}catch(Exception e)
+		{
+
 		}
 
 		CheckBox1.IsChecked = false;
