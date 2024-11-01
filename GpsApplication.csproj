@@ -66,6 +66,7 @@
 	  <None Remove="Resources\Images\Location.png" />
 	  <None Remove="Resources\Images\nowifi.png" />
 	  <None Remove="Resources\Images\playbutton.png" />
+	  <None Remove="Resources\Images\radar.png" />
 	  <None Remove="Resources\Images\refresh.png" />
 	  <None Remove="Resources\Images\route.png" />
 	  <None Remove="Resources\Images\user.png" />
@@ -95,10 +96,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="QuizPage.xaml">
+	  <MauiXaml Update="Pages\Popups\InfoPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="UserManager.xaml">
+	  <MauiXaml Update="Pages\QuizPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\UserManager.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

@@ -14,12 +14,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Maui.Layouts;
 using System.Xml.Linq;
+using GpsApplication.Pages.Popups;
 
 
 namespace GpsApplication
 {
 	public partial class MainPage : ContentPage
 	{
+		//
+		//Zrobić porządek z funkcjami
+		//
+
+
 		private CancellationTokenSource _cancelTokenSource;
 		private bool _isCheckingLocation;
 		private HttpClient client;
@@ -45,6 +51,8 @@ namespace GpsApplication
 		//Rozmiar ekranu urządzenia
 		private double screenWidth;
 		private double screenHeight;
+		//Popup
+		private InfoPopup _popup;
 
 		public ObservableCollection<Routes> Route { get; set; }
 		public ObservableCollection<Pointt> GamePointsDB { get; set; }
@@ -70,9 +78,12 @@ namespace GpsApplication
 			//Przycisk Zamknij szukaj trasę
 			AbsoluteLayout.SetLayoutBounds(HideSearch, new Rect(0.01, screenHeight * 0.68, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(HideSearch, AbsoluteLayoutFlags.None);
-			//Przycisk anulowania trasy offline
+			//Przycisk Anulowania trasy offline
 			AbsoluteLayout.SetLayoutBounds(CancelOfflineButton, new Rect(0.01, screenHeight * 0.68, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(CancelOfflineButton, AbsoluteLayoutFlags.None);
+			//Przycisk Sprawdzenie pobliskich punktów
+			AbsoluteLayout.SetLayoutBounds(CheckNearbyPointsButton, new Rect(0.01, screenHeight * 0.02, 70, 45));
+			AbsoluteLayout.SetLayoutFlags(CheckNearbyPointsButton, AbsoluteLayoutFlags.None);
 			//Zapisane trasy
 			AbsoluteLayout.SetLayoutBounds(FlagShowing, new Rect(0.01, screenHeight * 0.61, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(FlagShowing, AbsoluteLayoutFlags.None);
@@ -81,6 +92,11 @@ namespace GpsApplication
 
 			Refresh(null, null);
 			CheckUser();
+		}
+		private async Task ShowPopup(string error)
+		{
+			_popup = new InfoPopup(error);
+			await Navigation.PushModalAsync(_popup);
 		}
 		public async void ScanForNearbyPoints(object sender, EventArgs e)
 		{
@@ -99,6 +115,7 @@ namespace GpsApplication
 					break;
 				}
 			}
+			ShowPopup("Nie znaleziono w okolicy punktów gry terenowej");
 		}
 		public async void DownloadQuiz(string name)
 		{
@@ -153,7 +170,13 @@ namespace GpsApplication
 			var network = Connectivity.Current.NetworkAccess;
 			if(network == NetworkAccess.Internet)
 			{
-				await LoadRoutesFromDatabase();
+				try
+				{
+					await LoadRoutesFromDatabase();
+				}catch(Exception ex)
+				{
+
+				}
 				WifiIcon.IconImageSource = "wifi.png";
 			} else
 			{
@@ -375,7 +398,6 @@ namespace GpsApplication
 			int delay = 1000;
 			do
 			{
-				RemoveGenericPins();
 				location = await Geolocation.GetLastKnownLocationAsync();
 				var pin = new Pin
 				{
@@ -387,6 +409,7 @@ namespace GpsApplication
 				var current = Connectivity.NetworkAccess;
 				if (current == NetworkAccess.Internet)
 				{
+					MainMap.MapElements.Clear();
 					CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong);
 					NavigationOnlineTest.IsVisible = true;
 					DistanceOnlineLabel.Text = distanceString;
@@ -397,7 +420,8 @@ namespace GpsApplication
 				}
 				if (cancel) break;
 				await Task.Delay(delay);
-				delay = 5000;
+				delay = 10000;
+				MainMap.Pins.Clear();
 			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
 			Title = "Mapa";
 			CancelOfflineButton.IsVisible = false;
