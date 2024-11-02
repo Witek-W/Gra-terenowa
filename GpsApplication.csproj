@@ -39,8 +39,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- App Icon -->		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<!-- App Icon -->		
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\earth.png" Color="#9DC3A7" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
