@@ -92,6 +92,11 @@ namespace GpsApplication
 			Refresh(null, null);
 			CheckUser();
 		}
+		//Zmiana ikony uzytkownika po wylogowaniu/zalogowaniu
+		protected override async void OnNavigatedTo(NavigatedToEventArgs e)
+		{
+			await CheckUser();
+		}
 		private async Task ShowPopup(string error)
 		{
 			_popup = new InfoPopup(error);
@@ -186,7 +191,7 @@ namespace GpsApplication
 			CheckUser();
 		}
 		//Aktualizowanie bazy danych punktów na podstawie pliku offline
-		private async Task UpdateDataBaseOfflineTxt()
+		public async Task UpdateDataBaseOfflineTxt()
 		{
 			var userLogin = await SecureStorage.GetAsync("user_login");
 			if(userLogin != null)

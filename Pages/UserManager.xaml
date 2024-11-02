@@ -46,7 +46,7 @@
                 <Button Grid.Row="2" Grid.Column="0" Text="Tabela wyników" CornerRadius="20" WidthRequest="250" Clicked="LeaderboardButton"
                         Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="Leaderboard"/>
                 <Button Grid.Row="3" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
-                        Margin="0,10,0,0" FontSize="16" FontAttributes="Bold"/>
+                        Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonName"/>
             </Grid>
         </StackLayout>
     </StackLayout>

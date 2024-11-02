@@ -8,10 +8,12 @@ public partial class UserManager : ContentPage
 {
 	private readonly Auth _auth;
 	private readonly AppDbContext _context;
+	private readonly MainPage _main;
 	public UserManager()
 	{
 		_context = new AppDbContext();
 		_auth = new Auth(_context);
+		_main = new MainPage();
 		InitializeComponent();
 		CheckLoggedUser();
 	}
@@ -73,8 +75,22 @@ public partial class UserManager : ContentPage
 	//Wylogowywanie u¿ytkownika
 	private async void LogoutButton(object sender, EventArgs e)
 	{
-		_auth.Logout();
-		await Navigation.PopAsync();
+		if(CheckInternet())
+		{
+
+			await _main.UpdateDataBaseOfflineTxt();
+			SecureStorage.Remove("user_login");
+			SecureStorage.Remove("user_id");
+			SecureStorage.Remove("user_name");
+			await Navigation.PopAsync();
+		} else
+		{
+			LogoutButtonName.IsEnabled = false;
+			LogoutButtonName.Text = "B³¹d sieci";
+			await Task.Delay(4000);
+			LogoutButtonName.Text = "Wyloguj";
+			LogoutButtonName.IsEnabled = true;
+		}
 	}
 	//Aktywowanie przycisku Rejestracji dopiero jak wszystkie pola bêd¹ wpisane
 	private async void RegisterForm(object sender, TextChangedEventArgs e)
