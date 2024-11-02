@@ -37,7 +37,20 @@ public partial class UserManager : ContentPage
 	private async void Login(object sender, EventArgs e)
 	{
 		await _auth.Login(LoginLogin.Text, PasswordLogin.Text);
-		await Navigation.PopAsync();
+		var check = await SecureStorage.GetAsync("user_login");
+		if(check != null)
+		{
+			await Navigation.PopAsync();
+		} else
+		{
+			LoginButton.IsEnabled = false;
+			LoginButton.Text = "B³êdne dane";
+			LoginLogin.Text = "";
+			PasswordLogin.Text = "";
+			await Task.Delay(4000);
+			LoginButton.Text = "Zaloguj";
+			LoginButton.IsEnabled = true;
+		}
 	}
 	//Rejestracja u¿ytkownika
 	private async void Register(object sender, EventArgs e)
