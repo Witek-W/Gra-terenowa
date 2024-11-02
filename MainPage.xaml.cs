@@ -104,22 +104,30 @@ namespace GpsApplication
 		}
 		public async void ScanForNearbyPoints(object sender, EventArgs e)
 		{
-			if(GamePointsDB.Count == 0)
+			var userlogged = await SecureStorage.GetAsync("user_login");
+			if(userlogged != null)
 			{
-				GamePointsDB = await LoadGamePointsFromFile();
-			}
-			var location = await Geolocation.GetLastKnownLocationAsync();
-			foreach (var point in GamePointsDB)
-			{
-				double distance = CalculateDistance(location.Latitude, location.Longitude, point.lat, point.lon);
-
-				if (distance <= nearbyDistance)
+				if (GamePointsDB.Count == 0)
 				{
-					DownloadQuiz(point.Name);
-					break;
+					GamePointsDB = await LoadGamePointsFromFile();
+				}
+				var location = await Geolocation.GetLastKnownLocationAsync();
+				foreach (var point in GamePointsDB)
+				{
+					double distance = CalculateDistance(location.Latitude, location.Longitude, point.lat, point.lon);
+
+					if (distance <= nearbyDistance)
+					{
+						DownloadQuiz(point.Name);
+						return;
+					}
 				}
 				ShowPopup("Nie znaleziono w okolicy punktów gry terenowej");
+			} else
+			{
+				ShowPopup("Musisz się zalogować, jeżeli chcesz wykonać quiz");
 			}
+			
 		}
 		public async void DownloadQuiz(string name)
 		{
