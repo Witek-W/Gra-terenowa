@@ -366,6 +366,7 @@ namespace GpsApplication
 		}
 		public async void ResultPop(string time, string distance)
 		{
+			TestPop.WidthRequest = screenWidth;
 			TestPop.IsVisible = true;
 			if (isRouteFromSavedJson == true)
 			{
@@ -451,6 +452,7 @@ namespace GpsApplication
 				{
 					MainMap.MapElements.Clear();
 					CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong);
+					NavigationOnlineTest.WidthRequest = screenWidth;
 					NavigationOnlineTest.IsVisible = true;
 					DistanceOnlineLabel.Text = distanceString;
 					TimeOnlineLabel.Text = timeString;
