@@ -27,25 +27,29 @@ namespace GpsApplication.Models
                     await SecureStorage.SetAsync("user_login", login);
                     await SecureStorage.SetAsync("user_id", user.ID.ToString());
                     await SecureStorage.SetAsync("user_name", user.Name);
+                    await SecureStorage.SetAsync("user_role", user.isAdmin.ToString());
                 }
 			}
         }
         public async Task Register(string name, string surname, string login, string password)
         {
-			
-			string salt = BCrypt.Net.BCrypt.GenerateSalt(4);
-			var passwordHash = BCrypt.Net.BCrypt.HashPassword(password, salt);
-
-            var user = new User
+			var userLogin = await _context.User.SingleOrDefaultAsync(p => p.Login == login);
+            if(userLogin == null)
             {
-                Name = name,
-                Surname = surname,
-                Login = login,
-                Password = passwordHash,
-                AllPoints = 0
-            };
-            await _context.User.AddAsync(user);
-            await _context.SaveChangesAsync();
+			    string salt = BCrypt.Net.BCrypt.GenerateSalt(4);
+			    var passwordHash = BCrypt.Net.BCrypt.HashPassword(password, salt);
+                var user = new User
+                {
+                    isAdmin = 0,
+                    Name = name,
+                    Surname = surname,
+                    Login = login,
+                    Password = passwordHash,
+                    AllPoints = 0
+                };
+                await _context.User.AddAsync(user);
+                await _context.SaveChangesAsync();
+            }
 		}
         public async Task Logout()
         {

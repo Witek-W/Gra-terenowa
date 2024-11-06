@@ -49,5 +49,23 @@
                         Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonName"/>
             </Grid>
         </StackLayout>
+        <!-- Administrator -->
+        <StackLayout IsVisible="False" x:Name="LoggedAdmin">
+            <Grid RowDefinitions="*,*,*,*,*" ColumnDefinitions=".100*" Padding="15">
+                <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="28" FontAttributes="Bold" x:Name="LoggedLabelAdmin" HorizontalOptions="CenterAndExpand"/>
+                <!-- Dodawanie ważnego punktu -->
+                <Button Grid.Row="1" Grid.Column="0" Text="Dodaj ważny punkt" CornerRadius="20" MinimumWidthRequest="250"
+                        FontAttributes="Bold" WidthRequest="250" FontSize="16" Margin="0,10,0,0"/>
+                <!-- Dodawanie pytań do quizów -->
+                <Button Grid.Row="2" Grid.Column="0" Text="Dodaj pytanie do quizu" MinimumWidthRequest="250"
+                        CornerRadius="20" WidthRequest="250" FontSize="16" FontAttributes="Bold" Margin="0,10,0,0"/>
+                <!-- Tablica wyników -->
+                <Button Grid.Row="3" Grid.Column="0" Text="Tabela wyników" CornerRadius="20" MinimumWidthRequest="250" WidthRequest="250" Clicked="LeaderboardButton"
+                Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LeaderboardAdmin"/>
+                <!-- Wyloguj -->
+                <Button Grid.Row="4" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
+                Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonNameAdmin"/>
+            </Grid>
+        </StackLayout>
     </StackLayout>
 </ContentPage>

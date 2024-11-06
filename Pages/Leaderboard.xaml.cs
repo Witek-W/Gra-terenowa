@@ -22,6 +22,7 @@ public partial class Leaderboard : ContentPage
 		if (_user.CheckInternet())
 		{
 			var result = await _context.User
+								.Where(p => p.isAdmin == 0)
 								.OrderByDescending(p => p.AllPoints)
 								.Take(UsersRanking)
 								.ToListAsync();

@@ -26,11 +26,19 @@ public partial class UserManager : ContentPage
 			await Navigation.PushAsync(page);
 		} else
 		{
+			//UI Uzytkownika
 			Leaderboard.IsEnabled = false;
 			Leaderboard.Text = "Brak sieci";
+			//UI admina
+			LeaderboardAdmin.IsEnabled = false;
+			LeaderboardAdmin.Text = "Brak sieci";
 			await Task.Delay(4000);
+			//UI u¿ytkownika
 			Leaderboard.Text = "Tabela wyników";
 			Leaderboard.IsEnabled = true;
+			//UI admina
+			LeaderboardAdmin.Text = "Tabela wyników";
+			LeaderboardAdmin.IsEnabled = true;
 		}
 	}
 	//Logowanie u¿ytkownika
@@ -64,6 +72,7 @@ public partial class UserManager : ContentPage
 		var checkUser = await SecureStorage.GetAsync("user_login");
 		if(checkUser != null)
 		{
+			string role = await SecureStorage.GetAsync("user_role");
 			var name = await SecureStorage.GetAsync("user_name");
 			string idstring = await SecureStorage.GetAsync("user_id");
 			int iduser = Convert.ToInt16(idstring);
@@ -71,14 +80,21 @@ public partial class UserManager : ContentPage
 			if(CheckInternet())
 			{
 				score = _auth.ReturnUserScore(iduser);
-				ScoreUser.Text = "Zdobyte punkty: " + $"{score}";
+				//ScoreUser.Text = "Zdobyte punkty: " + $"{score}";
 			} else
 			{
-				ScoreUser.Text = "Offline";
+				//ScoreUser.Text = "Offline";
 			}
-			LoggedUser.IsVisible = true;
+			if(role == "1")
+			{
+				LoggedAdmin.IsVisible = true;
+			} else
+			{
+				LoggedUser.IsVisible = true;
+			}
 			Title = "Zalogowano";
 			LoggedLabel.Text = "Witaj " + $"{name}";
+			LoggedLabelAdmin.Text = "Witaj " + $"{name}";
 		} else
 		{
 			LoginLayout.IsVisible = true;
@@ -90,7 +106,6 @@ public partial class UserManager : ContentPage
 	{
 		if(CheckInternet())
 		{
-
 			await _main.UpdateDataBaseOfflineTxt();
 			SecureStorage.Remove("user_login");
 			SecureStorage.Remove("user_id");
@@ -98,11 +113,19 @@ public partial class UserManager : ContentPage
 			await Navigation.PopAsync();
 		} else
 		{
+			//UI u¿ytkownika
 			LogoutButtonName.IsEnabled = false;
 			LogoutButtonName.Text = "B³¹d sieci";
+			//UI admina
+			LogoutButtonNameAdmin.IsEnabled = false;
+			LogoutButtonNameAdmin.Text = "B³¹d sieci";
 			await Task.Delay(4000);
+			//UI u¿ytkownika
 			LogoutButtonName.Text = "Wyloguj";
 			LogoutButtonName.IsEnabled = true;
+			//UI admina
+			LogoutButtonNameAdmin.Text = "Wyloguj";
+			LogoutButtonNameAdmin.IsEnabled = true;
 		}
 	}
 	//Aktywowanie przycisku Rejestracji dopiero jak wszystkie pola bêd¹ wpisane

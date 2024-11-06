@@ -68,6 +68,13 @@ namespace GpsApplication
 			screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
 			Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
 			InitializeComponent();
+			//Tworzenie pliku z wynikami jeżeli nie istnieje
+			string fileScorePath = Path.Combine(FileSystem.AppDataDirectory, "Score.txt");
+			if (!File.Exists(fileScorePath))
+			{
+				File.Create(fileScorePath).Close();
+				File.WriteAllText(fileScorePath, "0");
+			}
 			//Przycisk Zmień Mapę
 			AbsoluteLayout.SetLayoutBounds(ChangeMapLayerButton, new Rect(0.01, screenHeight * 0.75, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(ChangeMapLayerButton, AbsoluteLayoutFlags.None);
@@ -662,13 +669,6 @@ namespace GpsApplication
 				await File.AppendAllTextAsync(fileRoutesPath, $"{EndLocalizationOfflineTemp}" + Environment.NewLine);
 				//Zapisywanie quizu żeby był dostępny offline
 				await File.WriteAllTextAsync(filePath2, json);
-				//Tworzenie pliku z wynikami jeżeli nie istnieje
-				string fileScorePath = Path.Combine(FileSystem.AppDataDirectory, "Score.txt");
-				if (!File.Exists(fileScorePath))
-				{
-					File.Create(fileScorePath).Close();
-					File.WriteAllText(fileScorePath, "0");
-				}
 				//Komunikat o zapisywaniu
 				SaveButtonResult.Text = "Zapisano!";
 				SaveButtonResult.IsEnabled = false;
