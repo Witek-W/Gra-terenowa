@@ -2,11 +2,69 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GpsApplication.Pages.ManageApp.AddQuestion"
-             Title="AddQuestion">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Dodaj pytanie">
+    <ScrollView>
+        <VerticalStackLayout x:Name="VerticalStackLayoutMain">
+            <Grid RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*" ColumnDefinitions=".85*,.15*" Padding="10">
+                <Frame Grid.Column="0" Grid.ColumnSpan="2">
+                    <StackLayout>
+                        <!-- Tekst do którego miejsca -->
+                        <Label Grid.Row="0" Grid.Column="0" Text="Do którego miejsca dodać quiz?" HorizontalOptions="Center"
+                               VerticalOptions="FillAndExpand" FontSize="20" FontAttributes="Bold"/>
+                        <!-- Picker do którego miejsca dodać quiz -->
+                        <Picker Grid.Row="0" Grid.Column="1" Title="Wybierz miejsce" HorizontalOptions="FillAndExpand" x:Name="PickerName"
+                                VerticalOptions="Center" Margin="10,0,0,0" FontSize="18" FontAttributes="Bold" SelectedIndexChanged="PickerChanged">
+                        </Picker>
+                    </StackLayout>
+                </Frame>
+                <!-- Pytanie Label -->
+                <Label Grid.Row="1" Text="Pytanie do quizu" Margin="10,10,0,0" FontSize="18" FontAttributes="Bold"/>
+                <!-- Entry pytania -->
+                <Frame Grid.Row="2" Grid.ColumnSpan="2" Padding="10">
+                    <Entry Grid.Row="2" Placeholder="Wpisz pytanie" FontAttributes="Bold" FontSize="18"
+                           x:Name="QuestionEntry" TextChanged="EntryChangedQuiz" Focused="OnEntryFocused"/>
+                </Frame>
+                <!-- odpowiedź 1 -->
+                <Label Grid.Row="3" Text="Odpowiedź nr.1" Margin="10,10,0,0" FontSize="18" FontAttributes="Bold"/>
+                <!-- Entry odpowiedz1 -->
+                <Frame Grid.Row="4" Padding="10">
+                    <Entry Grid.Row="4" Placeholder="Wpisz odpowiedź nr.1" FontAttributes="Bold" FontSize="18"
+                           x:Name="Answer1Entry" TextChanged="EntryChangedQuiz" Focused="OnEntryFocused"/>
+                </Frame>
+                <!-- Checkbox odpowiedź 1 -->
+                <CheckBox Grid.Row="4" Grid.Column="1" CheckedChanged="CheckBoxChanged" x:Name="Checkbox1"/>
+                <!-- odpowiedź 2 -->
+                <Label Grid.Row="5" Text="Odpowiedź nr.2" Margin="10,10,0,0" FontSize="18" FontAttributes="Bold"/>
+                <!-- Entry odpowiedz2 -->
+                <Frame Grid.Row="6" Padding="10">
+                    <Entry Grid.Row="6" Placeholder="Wpisz odpowiedź nr.2" FontAttributes="Bold" FontSize="18"
+                           x:Name="Answer2Entry" TextChanged="EntryChangedQuiz" Focused="OnEntryFocused"/>
+                </Frame>
+                <!-- Checkbox odpowiedź 2 -->
+                <CheckBox Grid.Row="6" Grid.Column="1" CheckedChanged="CheckBoxChanged" x:Name="Checkbox2"/>
+                <!-- odpowiedź 3 -->
+                <Label Grid.Row="7" Text="Odpowiedź nr.3" Margin="10,10,0,0" FontSize="18" FontAttributes="Bold"/>
+                <!-- Entry odpowiedz3 -->
+                <Frame Grid.Row="8" Padding="10">
+                    <Entry Grid.Row="8" Placeholder="Wpisz odpowiedź nr.3" FontAttributes="Bold" FontSize="18"
+                           x:Name="Answer3Entry" TextChanged="EntryChangedQuiz" Focused="OnEntryFocused"/>
+                </Frame>
+                <!-- Checkbox odpowiedź 3 -->
+                <CheckBox Grid.Row="8" Grid.Column="1" CheckedChanged="CheckBoxChanged" x:Name="Checkbox3"/>
+                <!-- odpowiedź 4 -->
+                <Label Grid.Row="9" Text="Odpowiedź nr.4" Margin="10,10,0,0" FontSize="18" FontAttributes="Bold"/>
+                <!-- Entry odpowiedz4 -->
+                <Frame Grid.Row="10" Padding="10">
+                    <Entry Grid.Row="10" Placeholder="Wpisz odpowiedź nr.4" FontAttributes="Bold" FontSize="18"
+                           x:Name="Answer4Entry" TextChanged="EntryChangedQuiz" Focused="OnEntryFocused"/>
+                </Frame>
+                <!-- Checkbox odpowiedź 4 -->
+                <CheckBox Grid.Row="10" Grid.Column="1" CheckedChanged="CheckBoxChanged" x:Name="Checkbox4"/>
+                <!-- Przycisk dodaj pytanie -->
+                <Button Grid.Row="11" Grid.ColumnSpan="2" Text="Dodaj pytanie" FontSize="18" FontAttributes="Bold"
+                        WidthRequest="250" CornerRadius="20" Margin="0,10,0,0" HeightRequest="55" IsEnabled="False"
+                        x:Name="AddQuestionButton" Clicked="QuestionAdd"/>
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

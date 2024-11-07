@@ -18,6 +18,11 @@ public partial class UserManager : ContentPage
 		InitializeComponent();
 		CheckLoggedUser();
 	}
+	//Prze³¹czanie na stronê z dodawaniem pytania do quizu
+	private async void OpenAddQuestionPage(object sender, EventArgs e)
+	{
+		await Navigation.PushAsync(new AddQuestion());
+	}
 	//Prze³¹czanie na stronê z dodawaniem nowego punktu
 	private async void OpenAddNewPointPage(object sender, EventArgs e)
 	{
