@@ -51,6 +51,7 @@ namespace GpsApplication
 		//Rozmiar ekranu urządzenia
 		private double screenWidth;
 		private double screenHeight;
+		private bool isNavigationStarted = false;
 		//Popup
 		private InfoPopup _popup;
 		public ObservableCollection<Routes> Route { get; set; }
@@ -346,24 +347,26 @@ namespace GpsApplication
 						Location = new Location(EndLat, EndLong)
 					};
 					
-						MainMap.MapElements.Add(polyline);
-						MainMap.Pins.Add(pinstart);
-						MainMap.Pins.Add(pinEnd);
+					MainMap.MapElements.Add(polyline);
+					MainMap.Pins.Add(pinstart);
+					MainMap.Pins.Add(pinEnd);
+					if(!isNavigationStarted)
+					{
 						MainMap.MoveToRegion(MapSpan.FromCenterAndRadius(
-											new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
-						nearbyEndLat = EndLat;
-						nearbyEndLong = EndLong;
-						if (navigationStart == false)
-						{
-							ResultPop(timeText, distanceText);
-						}
-						else
-						{
-							timeText = timeText.Replace("hours", "godz");
-							timeString = timeText.Remove(timeText.Length - 1);
-							distanceString = distanceText;
-						}
-					
+									new Location(StartLat, StartLong), Distance.FromKilometers(0.3)));
+					}
+					nearbyEndLat = EndLat;
+					nearbyEndLong = EndLong;
+					if (navigationStart == false)
+					{
+						ResultPop(timeText, distanceText);
+					}
+					else
+					{
+						timeText = timeText.Replace("hours", "godz");
+						timeString = timeText.Remove(timeText.Length - 1);
+						distanceString = distanceText;
+					}
 				}
 			}
 		}
@@ -426,6 +429,7 @@ namespace GpsApplication
 		public async void AcceptButtonClicked(object sender, EventArgs e)
 		{
 			Title = "W trakcie nawigacji";
+			isNavigationStarted = true;
 			cts = new CancellationTokenSource();
 			//Wyłączanie wszystkich guzików
 			ShowSearch.IsVisible = false;
@@ -487,6 +491,7 @@ namespace GpsApplication
 				}
 			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
 			Title = "Mapa";
+			isNavigationStarted = false;
 			cts.Dispose();
 			CancelOfflineButton.IsVisible = false;
 			if (!cancel) RouteEnded.IsVisible = true;
