@@ -22,12 +22,14 @@ public partial class AddNewPoint : ContentPage
 				string latlong = NewPointLatLong.Text;
 				latlong = latlong.Trim('(', ')');
 				string[] splittedLatLong = latlong.Split(",");
+				double first = double.Parse(splittedLatLong[0] + "," + splittedLatLong[1]);
+				double second = double.Parse(splittedLatLong[2].Trim() + "," + splittedLatLong[3]);
 				var game = new GamePoints
 				{
 
-					Name = NewPointName.Text,
-					Latitude = double.Parse(splittedLatLong[0]),
-					Longitude = double.Parse(splittedLatLong[1].Trim())
+					Name = NewPointName.Text.Trim(),
+					Latitude = first,
+					Longitude = second
 				};
 				await _context.GamePoints.AddAsync(game);
 				await _context.SaveChangesAsync();

@@ -25,8 +25,8 @@ namespace GpsApplication
 		//Zrobić porządek z funkcjami
 		//
 
-
 		private CancellationTokenSource _cancelTokenSource;
+		private CancellationTokenSource cts = new CancellationTokenSource();
 		private bool _isCheckingLocation;
 		private HttpClient client;
 		//Warunki do directions api
@@ -251,10 +251,6 @@ namespace GpsApplication
 				{
 					AddPinAndMoveMap(location.Latitude, location.Longitude);
 				}
-				else
-				{
-					Debug.WriteLine("Lokalizacja jest null.");
-				}
 			}
 			catch(Exception ex)
 			{
@@ -430,6 +426,7 @@ namespace GpsApplication
 		public async void AcceptButtonClicked(object sender, EventArgs e)
 		{
 			Title = "W trakcie nawigacji";
+			cts = new CancellationTokenSource();
 			//Wyłączanie wszystkich guzików
 			ShowSearch.IsVisible = false;
 			HideSearch.IsVisible = false;
@@ -443,9 +440,14 @@ namespace GpsApplication
 			TestPop.IsVisible = false;
 			cancel = false;
 			var location = await Geolocation.GetLastKnownLocationAsync();
-			int delay = 1000;
+			GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(1));
+			int delay = 10;
 			do
 			{
+				try
+				{
+					Location locationrequest = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
+				}catch(Exception ex) { }
 				location = await Geolocation.GetLastKnownLocationAsync();
 				var pin = new Pin
 				{
@@ -467,12 +469,25 @@ namespace GpsApplication
 				{
 					CancelOfflineButton.IsVisible = true;
 				}
+				try
+				{
+					if (!cts.IsCancellationRequested)
+					{
+						await Task.Delay(10000, cts.Token);
+					}
+				}
+				catch (TaskCanceledException){}
 				if (cancel) break;
-				await Task.Delay(delay);
-				delay = 10000;
-				MainMap.Pins.Clear();
+				if(current == NetworkAccess.Internet)
+				{
+					MainMap.Pins.Clear();
+				} else
+				{
+					RemoveGenericPins();
+				}
 			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
 			Title = "Mapa";
+			cts.Dispose();
 			CancelOfflineButton.IsVisible = false;
 			if (!cancel) RouteEnded.IsVisible = true;
 			cancel = false;
@@ -493,6 +508,7 @@ namespace GpsApplication
 		private void CancelNavigationButton(object sender, EventArgs e)
 		{
 			cancel = true;
+			cts.Cancel();
 		}
 		private void RemoveGenericPins()
 		{

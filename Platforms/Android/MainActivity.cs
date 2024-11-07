@@ -13,5 +13,17 @@ namespace GpsApplication
 			base.OnCreate(savedInstanceState);
 			AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightNo;
 		}
+		protected override void OnResume()
+		{
+			base.OnResume();
+		}
+		protected override void OnPause()
+		{
+			base.OnPause();
+		}
+		protected override void OnNewIntent(Android.Content.Intent intent)
+		{
+			base.OnNewIntent(intent);
+		}
 	}
 }

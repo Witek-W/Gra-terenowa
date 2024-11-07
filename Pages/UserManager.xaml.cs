@@ -91,10 +91,10 @@ public partial class UserManager : ContentPage
 			if(CheckInternet())
 			{
 				score = _auth.ReturnUserScore(iduser);
-				//ScoreUser.Text = "Zdobyte punkty: " + $"{score}";
+				ScoreUser.Text = "Zdobyte punkty: " + $"{score}";
 			} else
 			{
-				//ScoreUser.Text = "Offline";
+				ScoreUser.Text = "Offline";
 			}
 			if(role == "1")
 			{
