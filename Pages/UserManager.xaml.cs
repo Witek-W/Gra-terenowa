@@ -1,4 +1,5 @@
 using GpsApplication.Models;
+using GpsApplication.Pages.ManageApp;
 using GpsApplication.Pages.Popups;
 using System.ComponentModel;
 
@@ -16,6 +17,11 @@ public partial class UserManager : ContentPage
 		_main = new MainPage();
 		InitializeComponent();
 		CheckLoggedUser();
+	}
+	//Prze³¹czanie na stronê z dodawaniem nowego punktu
+	private async void OpenAddNewPointPage(object sender, EventArgs e)
+	{
+		await Navigation.PushAsync(new AddNewPoint());
 	}
 	//Prze³¹czenia na stronê z tabel¹ wyników
 	private async void LeaderboardButton(object sender, EventArgs e)
