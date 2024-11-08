@@ -39,7 +39,7 @@ namespace GpsApplication
 		private string EndLocalizationOfflineTemp;
 		private bool isRouteFromSavedJson = false;
 		//Sprawdznie koncowej trasy
-		private double nearbyDistance = 18;
+		private double nearbyDistance = 35;
 		private double nearbyEndLat = 0;
 		private double nearbyEndLong = 0;
 		//Uruchamianie trasy
