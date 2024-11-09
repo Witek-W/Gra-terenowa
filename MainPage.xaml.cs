@@ -76,6 +76,13 @@ namespace GpsApplication
 				File.Create(fileScorePath).Close();
 				File.WriteAllText(fileScorePath, "0");
 			}
+			ChangeIconsLayout();
+			Refresh(null, null);
+			CheckUser();
+		}
+		//Zmiana ustawień ikon pod wysokość ekranu
+		private void ChangeIconsLayout()
+		{
 			//Przycisk Zmień Mapę
 			AbsoluteLayout.SetLayoutBounds(ChangeMapLayerButton, new Rect(0.01, screenHeight * 0.75, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(ChangeMapLayerButton, AbsoluteLayoutFlags.None);
@@ -96,9 +103,6 @@ namespace GpsApplication
 			AbsoluteLayout.SetLayoutFlags(FlagShowing, AbsoluteLayoutFlags.None);
 			AbsoluteLayout.SetLayoutBounds(FlagClosing, new Rect(0.01, screenHeight * 0.61, 70, 45));
 			AbsoluteLayout.SetLayoutFlags(FlagClosing, AbsoluteLayoutFlags.None);
-
-			Refresh(null, null);
-			CheckUser();
 		}
 		//Zmiana ikony uzytkownika po wylogowaniu/zalogowaniu
 		protected override async void OnNavigatedTo(NavigatedToEventArgs e)
@@ -444,50 +448,51 @@ namespace GpsApplication
 			TestPop.IsVisible = false;
 			cancel = false;
 			var location = await Geolocation.GetLastKnownLocationAsync();
-			GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(1));
-			int delay = 10;
 			do
 			{
-				try
+				GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(3));
+				location = await Geolocation.Default.GetLocationAsync(request);
+				if(location != null)
 				{
-					Location locationrequest = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
-				}catch(Exception ex) { }
-				location = await Geolocation.GetLastKnownLocationAsync();
-				var pin = new Pin
-				{
-					Label = "Moja lokalizacja",
-					Type = PinType.Generic,
-					Location = new Location(location.Latitude, location.Longitude),
-				};
-				MainMap.Pins.Add(pin);
-				var current = Connectivity.NetworkAccess;
-				if (current == NetworkAccess.Internet)
-				{
-					MainMap.MapElements.Clear();
-					CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong);
-					NavigationOnlineTest.WidthRequest = screenWidth;
-					NavigationOnlineTest.IsVisible = true;
-					DistanceOnlineLabel.Text = distanceString;
-					TimeOnlineLabel.Text = timeString;
-				} else
-				{
-					CancelOfflineButton.IsVisible = true;
-				}
-				try
-				{
-					if (!cts.IsCancellationRequested)
+					location = await Geolocation.GetLastKnownLocationAsync();
+					var current = Connectivity.NetworkAccess;
+					if (current == NetworkAccess.Internet)
 					{
-						await Task.Delay(10000, cts.Token);
+						MainMap.Pins.Clear();
 					}
-				}
-				catch (TaskCanceledException){}
-				if (cancel) break;
-				if(current == NetworkAccess.Internet)
-				{
-					MainMap.Pins.Clear();
-				} else
-				{
-					RemoveGenericPins();
+					else
+					{
+						RemoveGenericPins();
+					}
+					var pin = new Pin
+					{
+						Label = "Moja lokalizacja",
+						Type = PinType.Generic,
+						Location = new Location(location.Latitude, location.Longitude),
+					};
+					MainMap.Pins.Add(pin);
+					if (current == NetworkAccess.Internet)
+					{
+						MainMap.MapElements.Clear();
+						CalculateRoute(location.Latitude, location.Longitude, nearbyEndLat, nearbyEndLong);
+						NavigationOnlineTest.WidthRequest = screenWidth;
+						NavigationOnlineTest.IsVisible = true;
+						DistanceOnlineLabel.Text = distanceString;
+						TimeOnlineLabel.Text = timeString;
+					}
+					else
+					{
+						CancelOfflineButton.IsVisible = true;
+					}
+					try
+					{
+						if (!cts.IsCancellationRequested)
+						{
+							await Task.Delay(10000, cts.Token);
+						}
+					}
+					catch (TaskCanceledException) { }
+					if (cancel) break;
 				}
 			} while (CheckIfRouteEnded(location, nearbyEndLat, nearbyEndLong) == false);
 			Title = "Mapa";

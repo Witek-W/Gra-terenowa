@@ -4,68 +4,86 @@
              x:Class="GpsApplication.UserManager"
              Title="Ładowanie...">
     <!-- Logowanie -->
-    <StackLayout>
-        <StackLayout IsVisible="False" x:Name="LoginLayout">
-            <Grid RowDefinitions=".99*,.99*,.99*,.99*,.99*,.99*" ColumnDefinitions=".100*" Padding="15">
-                <Label Grid.Row="0" Grid.Column="0" Text="Wpisz swój login" FontSize="16" FontAttributes="Bold"/>
-                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Login" Margin="0,0,50,0" TextChanged="LoginForm" x:Name="LoginLogin"/>
+    <ScrollView>
+        <StackLayout>
+            <StackLayout IsVisible="False" x:Name="LoginLayout">
+                <Grid RowDefinitions=".99*,.99*,.99*,.99*,.99*,.99*" ColumnDefinitions=".100*" Padding="15">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Wpisz swój login" FontSize="18" FontAttributes="Bold"/>
+                    <Frame Grid.Row="1" Padding="15">
+                        <Entry Grid.Row="1" Grid.Column="0" Placeholder="Login" TextChanged="LoginForm" x:Name="LoginLogin"/>
+                    </Frame>
                 
-                <Label Grid.Row="2" Grid.Column="0" Text="Wpisz swoje hasło" FontSize="16" FontAttributes="Bold"/>
-                <Entry Grid.Row="3" Grid.Column="0" Placeholder="Hasło" Margin="0,0,50,0" IsPassword="True" TextChanged="LoginForm" x:Name="PasswordLogin"/>
+                    <Label Grid.Row="2" Grid.Column="0" Text="Wpisz swoje hasło" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Frame Grid.Row="3" Padding="15">
+                        <Entry Grid.Row="3" Grid.Column="0" Placeholder="Hasło" IsPassword="True" 
+                               TextChanged="LoginForm" x:Name="PasswordLogin"/>
+                    </Frame>
 
-                <Button Grid.Row="4" Grid.Column="0" Text="Zaloguj" CornerRadius="20" WidthRequest="250" x:Name="LoginButton" IsEnabled="False" Clicked="Login"/>
-                <Button Grid.Row="5" Grid.Column="0" Text="Nie masz konta? Zarejestruj się" FontSize="16" FontAttributes="Bold"
-                BackgroundColor="White" TextColor="Black" HorizontalOptions="Center" Clicked="ShowRegisterForm"/>
-            </Grid>
-        </StackLayout>
-        <!-- Rejestracja -->
-        <StackLayout IsVisible="False" x:Name="RegisterLayout">
-            <Grid RowDefinitions=".99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*" ColumnDefinitions=".100*" Padding="15">
-                <Label Grid.Row="0" Grid.Column="0" Text="Podaj swój login" FontSize="16" FontAttributes="Bold"/>
-                <Entry Grid.Row="1" Grid.Column="0" Placeholder="Login" Margin="0,0,50,0" TextChanged="RegisterForm" x:Name="LoginRegister"/>
-                
-                <Label Grid.Row="2" Grid.Column="0" Text="Podaj swoje hasło" FontSize="16" FontAttributes="Bold"/>
-                <Entry Grid.Row="3" Grid.Column="0" Placeholder="Hasło" Margin="0,0,50,0" IsPassword="True" TextChanged="RegisterForm" x:Name="PasswordRegister"/>
-                
-                <Label Grid.Row="4" Grid.Column="0" Text="Podaj swoje imię" FontSize="16" FontAttributes="Bold"/>
-                <Entry Grid.Row="5" Grid.Column="0" Placeholder="Imię" Margin="0,0,50,0" TextChanged="RegisterForm" x:Name="NameRegister"/>
-                
-                <Label Grid.Row="6" Grid.Column="0" Text="Podaj swoje nazwisko" FontSize="16" FontAttributes="Bold"/>
-                <Entry Grid.Row="7" Grid.Column="0" Placeholder="Nazwisko" Margin="0,0,50,0" TextChanged="RegisterForm" x:Name="SurnameRegister"/>
+                    <Button Grid.Row="4" Grid.Column="0" Text="Zaloguj" CornerRadius="20" WidthRequest="250" x:Name="LoginButton" 
+                            Margin="0,10,0,0" IsEnabled="False" Clicked="Login"/>
+                    <Button Grid.Row="5" Grid.Column="0" Text="Nie masz konta? Zarejestruj się" FontSize="16" FontAttributes="Bold"
+                    BackgroundColor="White" TextColor="Black" HorizontalOptions="Center" Clicked="ShowRegisterForm"/>
+                </Grid>
+            </StackLayout>
+            <!-- Rejestracja -->
+            <StackLayout IsVisible="False" x:Name="RegisterLayout">
+                <Grid RowDefinitions=".99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*,.99*" ColumnDefinitions=".100*" Padding="15">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Podaj swój login" FontSize="18" FontAttributes="Bold"/>
+                    <Frame Grid.Row="1">
+                        <Entry Grid.Row="1" Grid.Column="0" Placeholder="Login" TextChanged="RegisterForm" x:Name="LoginRegister" Focused="ChangePadding"/>
+                    </Frame>
 
-                <Button Grid.Row="8" Grid.Column="0" Text="Zarejestruj" CornerRadius="20" WidthRequest="250" x:Name="RegisterButton" IsEnabled="False" Clicked="Register"/>
-                <Button Grid.Row="9" Grid.Column="0" Text="Masz już konto? Zaloguj" FontSize="16" FontAttributes="Bold"
-            BackgroundColor="White" TextColor="Black" HorizontalOptions="Center" Clicked="ShowLoginForm"/>
-            </Grid>
+                    <Label Grid.Row="2" Grid.Column="0" Text="Podaj swoje hasło" FontSize="18" FontAttributes="Bold"/>
+                    <Frame Grid.Row="3">
+                        <Entry Grid.Row="3" Grid.Column="0" Placeholder="Hasło" IsPassword="True" TextChanged="RegisterForm" 
+                                   Focused="ChangePadding" x:Name="PasswordRegister"/>
+                    </Frame>
+
+                    <Label Grid.Row="4" Grid.Column="0" Text="Podaj swoje imię" FontSize="18" FontAttributes="Bold"/>
+                    <Frame Grid.Row="5">
+                        <Entry Grid.Row="5" Grid.Column="0" Placeholder="Imię" TextChanged="RegisterForm" x:Name="NameRegister" Focused="ChangePadding"/>
+                    </Frame>
+
+                    <Label Grid.Row="6" Grid.Column="0" Text="Podaj swoje nazwisko" FontSize="18" FontAttributes="Bold"/>
+                    <Frame Grid.Row="7">
+                        <Entry Grid.Row="7" Grid.Column="0" Placeholder="Nazwisko" TextChanged="RegisterForm" x:Name="SurnameRegister" Focused="ChangePadding"/>
+                    </Frame>
+
+                    <Button Grid.Row="8" Grid.Column="0" Text="Zarejestruj" CornerRadius="20" WidthRequest="250" Margin="0,10,0,0" FontAttributes="Bold"
+                                x:Name="RegisterButton" IsEnabled="False" Clicked="Register"/>
+                    <Button Grid.Row="9" Grid.Column="0" Text="Masz już konto? Zaloguj" FontSize="16" FontAttributes="Bold"
+                                BackgroundColor="White" TextColor="Black" HorizontalOptions="Center" Clicked="ShowLoginForm"/>
+                </Grid>
+            </StackLayout>
+            <!-- Zalogowany użytkownik -->
+            <StackLayout IsVisible="False" x:Name="LoggedUser">
+                <Grid RowDefinitions="*,*,*,*" ColumnDefinitions=".100*" Padding="15">
+                    <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="24" FontAttributes="Bold" x:Name="LoggedLabel" HorizontalOptions="CenterAndExpand"/>
+                    <Label Grid.Row="1" Grid.Column="0" FontSize="22" FontAttributes="Bold" HorizontalOptions="CenterAndExpand" x:Name="ScoreUser"/>
+                    <Button Grid.Row="2" Grid.Column="0" Text="Tabela wyników" CornerRadius="20" WidthRequest="250" Clicked="LeaderboardButton"
+                            Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="Leaderboard"/>
+                    <Button Grid.Row="3" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
+                            Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonName"/>
+                </Grid>
+            </StackLayout>
+            <!-- Administrator -->
+            <StackLayout IsVisible="False" x:Name="LoggedAdmin">
+                <Grid RowDefinitions="*,*,*,*,*" ColumnDefinitions=".100*" Padding="15">
+                    <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="28" FontAttributes="Bold" x:Name="LoggedLabelAdmin" HorizontalOptions="CenterAndExpand"/>
+                    <!-- Dodawanie ważnego punktu -->
+                    <Button Grid.Row="1" Grid.Column="0" Text="Dodaj ważny punkt" CornerRadius="20" MinimumWidthRequest="250"
+                            FontAttributes="Bold" WidthRequest="250" FontSize="16" Margin="0,10,0,0" Clicked="OpenAddNewPointPage"/>
+                    <!-- Dodawanie pytań do quizów -->
+                    <Button Grid.Row="2" Grid.Column="0" Text="Dodaj pytanie do quizu" MinimumWidthRequest="250"
+                            CornerRadius="20" WidthRequest="250" FontSize="16" FontAttributes="Bold" Margin="0,10,0,0" Clicked="OpenAddQuestionPage"/>
+                    <!-- Tablica wyników -->
+                    <Button Grid.Row="3" Grid.Column="0" Text="Tabela wyników" CornerRadius="20" MinimumWidthRequest="250" WidthRequest="250" Clicked="LeaderboardButton"
+                    Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LeaderboardAdmin"/>
+                    <!-- Wyloguj -->
+                    <Button Grid.Row="4" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
+                    Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonNameAdmin"/>
+                </Grid>
+            </StackLayout>
         </StackLayout>
-        <!-- Zalogowany użytkownik -->
-        <StackLayout IsVisible="False" x:Name="LoggedUser">
-            <Grid RowDefinitions="*,*,*,*" ColumnDefinitions=".100*" Padding="15">
-                <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="24" FontAttributes="Bold" x:Name="LoggedLabel" HorizontalOptions="CenterAndExpand"/>
-                <Label Grid.Row="1" Grid.Column="0" FontSize="22" FontAttributes="Bold" HorizontalOptions="CenterAndExpand" x:Name="ScoreUser"/>
-                <Button Grid.Row="2" Grid.Column="0" Text="Tabela wyników" CornerRadius="20" WidthRequest="250" Clicked="LeaderboardButton"
-                        Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="Leaderboard"/>
-                <Button Grid.Row="3" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
-                        Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonName"/>
-            </Grid>
-        </StackLayout>
-        <!-- Administrator -->
-        <StackLayout IsVisible="False" x:Name="LoggedAdmin">
-            <Grid RowDefinitions="*,*,*,*,*" ColumnDefinitions=".100*" Padding="15">
-                <Label Grid.Row="0" Grid.Column="0" Text="" FontSize="28" FontAttributes="Bold" x:Name="LoggedLabelAdmin" HorizontalOptions="CenterAndExpand"/>
-                <!-- Dodawanie ważnego punktu -->
-                <Button Grid.Row="1" Grid.Column="0" Text="Dodaj ważny punkt" CornerRadius="20" MinimumWidthRequest="250"
-                        FontAttributes="Bold" WidthRequest="250" FontSize="16" Margin="0,10,0,0" Clicked="OpenAddNewPointPage"/>
-                <!-- Dodawanie pytań do quizów -->
-                <Button Grid.Row="2" Grid.Column="0" Text="Dodaj pytanie do quizu" MinimumWidthRequest="250"
-                        CornerRadius="20" WidthRequest="250" FontSize="16" FontAttributes="Bold" Margin="0,10,0,0" Clicked="OpenAddQuestionPage"/>
-                <!-- Tablica wyników -->
-                <Button Grid.Row="3" Grid.Column="0" Text="Tabela wyników" CornerRadius="20" MinimumWidthRequest="250" WidthRequest="250" Clicked="LeaderboardButton"
-                Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LeaderboardAdmin"/>
-                <!-- Wyloguj -->
-                <Button Grid.Row="4" Grid.Column="0" Text="Wyloguj" CornerRadius="20" WidthRequest="250" Clicked="LogoutButton"
-                Margin="0,10,0,0" FontSize="16" FontAttributes="Bold" x:Name="LogoutButtonNameAdmin"/>
-            </Grid>
-        </StackLayout>
-    </StackLayout>
+    </ScrollView>
 </ContentPage>

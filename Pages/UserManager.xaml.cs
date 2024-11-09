@@ -203,4 +203,12 @@ public partial class UserManager : ContentPage
 			return false;
 		}
 	}
+	//Przesuwanie ekranu kiedy jest klawiatura
+	private void ChangePadding(object sender, FocusEventArgs e)
+	{
+		if (e.IsFocused)
+		{
+			RegisterLayout.Padding = new Thickness(0, 0, 0, 300);
+		}
+	}
 }

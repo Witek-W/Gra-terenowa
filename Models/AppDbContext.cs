@@ -16,13 +16,7 @@ namespace GpsApplication.Models
 		public DbSet<QuizHistory> QuizHistory { get; set; }
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			//var config = new ConfigurationBuilder()
-			//	.SetBasePath(Directory.GetCurrentDirectory())
-			//	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-			//	.Build();
-			//string connectionString = config.GetConnectionString("DefaultConnection");
 			string connectionString = "***REMOVED***"; 
-
 			optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 		}
 	}

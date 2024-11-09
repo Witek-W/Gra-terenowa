@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GpsApplication.Pages.Popups.Leaderboard"
              Title="Ranking">
-    <VerticalStackLayout>
+    <VerticalStackLayout Padding="10">
         <CollectionView x:Name="LeaderboardCollection">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -20,10 +20,34 @@
                                     <Setter Property="BackgroundColor" Value="SaddleBrown"/>
                                 </DataTrigger>
                             </Grid.Triggers>
-                            <Label Grid.Column="0" Text="{Binding ID}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold"/>
-                            <Label Grid.Column="1" Text="{Binding Name}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18"/>
-                            <Label Grid.Column="2" Text="{Binding Surname}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18"/>
-                            <Label Grid.Column="3" Text="{Binding AllPoints}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold"/>
+                            <Label Grid.Column="0" Text="{Binding ID}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding ID}" Value="3">
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="1" Text="{Binding Name}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding ID}" Value="3">
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="2" Text="{Binding Surname}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding ID}" Value="3">
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label Grid.Column="3" Text="{Binding AllPoints}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding ID}" Value="3">
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
                         </Grid>
                     </Frame>
                 </DataTemplate>
